@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>GIDEON Lab V3.9.9.9.5 - Absolute Master</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; color: #00ffcc; }
+        #gideon-ui { position: absolute; top: 20px; right: 20px; background: rgba(0, 15, 15, 0.95); padding: 25px; border: 1px solid #00ffcc; z-index: 1000; width: 280px; box-shadow: 0 0 20px rgba(0, 255, 204, 0.2); }
+        #anim-panel { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0, 15, 15, 0.95); padding: 15px 30px; border: 1px solid #00ffcc; display: none; align-items: center; gap: 20px; width: 65%; z-index: 1000; }
+        h2 { font-size: 14px; margin: 0 0 15px 0; letter-spacing: 2px; border-bottom: 1px solid #00ffcc33; padding-bottom: 10px; }
+        .label { font-size: 9px; margin-bottom: 5px; color: #55aaaa; text-transform: uppercase; margin-top: 10px; }
+        select { background: #000; color: #00ffcc; border: 1px solid #00ffcc; padding: 8px; width: 100%; outline: none; margin-bottom: 5px; cursor: pointer; }
+        .btn { background: transparent; border: 1px solid #00ffcc; color: #00ffcc; padding: 8px; cursor: pointer; font-family: inherit; font-size: 10px; width: 100%; margin-top: 5px; }
+        .sv-btn { border-color: #ffcc00; color: #ffcc00; }
+        #stats { font-size: 10px; margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; }
+        .val { color: #fff; float: right; }
+        #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:2000; letter-spacing:3px; }
+        #hud-toggle { position: absolute; bottom: 15px; left: 15px; z-index: 2001; background: #000; color: #ffcc00; border: 1px solid #ffcc00; width: 25px; height: 25px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="loader">GIDEON: DECRYPTING QUANTUM DATA...</div>
+    <button id="hud-toggle" onclick="toggleHUD()">_</button>
+
+    <div id="gideon-ui">
+        <h2>GIDEON CORE V3.9.9.9.5</h2>
+        <div class="label">Архив (SECURE V3):</div>
+        <select id="staticSelector" onchange="switchModel('static', this.value)"></select>
+        <div class="label">Динамика (ORIGINAL):</div>
+        <select id="dynamicSelector" onchange="switchModel('dynamic', this.value)"></select>
+        
+        <div class="label">S-Vision HUD:</div>
+        <button class="btn sv-btn" onclick="applySvisionImage()">ПРОЯВИТЬ ФОТО</button>
+        <button class="btn sv-btn" style="border-color:#ff00ff; color:#ff00ff;" onclick="applySvisionVideo()">S-VISION VIDEO</button>
+        <button class="btn" style="margin-top:5px; border-style:dotted;" onclick="resetMonitor()">ОЧИСТИТЬ ЭКРАН</button>
+
+        <div id="stats">
+            <div>ВЕРШИН: <span id="count" class="val">0</span></div>
+            <div>РЕЖИМ: <span id="modeDisplay" class="val">READY</span></div>
+        </div>
+        <button class="btn" onclick="centerView()">CENTER VIEW</button>
+    </div>
+
+    <div id="anim-panel">
+        <button id="playBtn" style="background:transparent; border:1px solid #00ffcc; color:#00ffcc; width:80px; cursor:pointer;">PLAY</button>
+        <input type="range" id="timeline" min="0" value="0" style="flex:1; accent-color:#00ffcc;">
+        <div id="frameDisplay" style="font-size: 12px; min-width: 60px; text-align: right;">F: 0</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        const USER = 'stanislavsfiral', REPO = 'GIDEON_MIRROR';
+        const BOT = { phi: (1 + Math.sqrt(5)) / 2, cycle: 100, amp: 125 };
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000000);
+        camera.position.set(500, 500, 500);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        
+        let mainObj = null, animData = null, currentFrame = 0, isPlaying = false, pointsPerFrame = 0, totalFrames = 0;
+        let monitorObj = null, monitorGeom = null, videoActive = false, videoElement = null, frameSkipCounter = 0;
+
+        // --- ДЕШИФРАТОР (ДЛЯ STATIC) ---
+        function decryptGideon(buffer) {
+            let data = new Float32Array(buffer.slice(128));
+            for (let i = 0; i < data.length; i++) {
+                const angle = i * BOT.phi;
+                const phase = i % BOT.cycle;
+                let z = (phase < 40) ? Math.sin(angle) * BOT.amp : -Math.sin(angle) * BOT.amp;
+                data[i] = data[i] - z;
+            }
+            return data;
+        }
+
+        async function init() {
+            await loadFolder('static', 'staticSelector');
+            await loadFolder('dynamic', 'dynamicSelector');
+            createHUD();
+            animate();
+        }
+
+        async function loadFolder(folder, selectId) {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/models/${folder}`);
+                const files = await res.json();
+                const select = document.getElementById(selectId);
+                select.innerHTML = `<option value="">-- ${folder.toUpperCase()} --</option>`;
+                files.filter(f => f.name.endsWith('.npy')).forEach(f => {
+                    const opt = document.createElement('option');
+                    opt.value = f.name; opt.text = f.name.toUpperCase();
+                    select.appendChild(opt);
+                });
+            } catch(e) { console.error("Folder Load Error:", e); }
+        }
+
+        async function switchModel(type, fileName) {
+            if (!fileName) return;
+            document.getElementById('loader').style.display = 'flex';
+            isPlaying = false;
+            
+            try {
+                const res = await fetch(`models/${type}/${fileName}`);
+                const buffer = await res.arrayBuffer();
+                
+                let floatData;
+                if (type === 'static') {
+                    floatData = decryptGideon(buffer);
+                    pointsPerFrame = floatData.length / 3;
+                    animData = floatData; totalFrames = 1;
+                    document.getElementById('anim-panel').style.display = 'none';
+                    document.getElementById('modeDisplay').innerText = 'STATIC (SECURE)';
+                    renderPoints(floatData);
+                } else {
+                    const checkView = new DataView(buffer);
+                    const magic = checkView.getUint32(0, true);
+                    if (magic === 0x4E594447) { // "GDYN"
+                        totalFrames = checkView.getUint32(4, true);
+                        pointsPerFrame = checkView.getUint32(8, true);
+                        floatData = new Float32Array(buffer.slice(12));
+                        animData = floatData;
+                        document.getElementById('anim-panel').style.display = 'flex';
+                        document.getElementById('timeline').max = totalFrames - 1;
+                        document.getElementById('modeDisplay').innerText = 'DYNAMIC (RAW)';
+                        updateFrame(0);
+                    } else {
+                        floatData = new Float32Array(buffer);
+                        pointsPerFrame = floatData.length / 3;
+                        animData = floatData; totalFrames = 1;
+                        renderPoints(floatData);
+                    }
+                }
+                setTimeout(centerView, 100);
+                document.getElementById('count').innerText = Math.floor(pointsPerFrame);
+            } catch(e) { console.error("Model Load Error:", e); }
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        function renderPoints(data) {
+            if (mainObj) scene.remove(mainObj);
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.BufferAttribute(data, 3));
+            mainObj = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x00ffcc, size: 2, sizeAttenuation: false }));
+            scene.add(mainObj);
+        }
+
+        function updateFrame(f) {
+            if (!animData) return;
+            const offset = f * pointsPerFrame * 3;
+            renderPoints(animData.subarray(offset, offset + pointsPerFrame * 3));
+            document.getElementById('timeline').value = f;
+            document.getElementById('frameDisplay').innerText = `F: ${f}`;
+        }
+
+        // --- ИСПРАВЛЕННАЯ ЦЕНТРОВКА (ВИД С ТОРЦА) ---
+        function centerView() {
+            if (!mainObj) return;
+            mainObj.geometry.computeBoundingSphere();
+            const s = mainObj.geometry.boundingSphere;
+            controls.target.copy(s.center);
+            const d = s.radius > 0 ? s.radius * 3.5 : 500;
+            // Смотрим прямо по оси Z
+            camera.position.set(s.center.x, s.center.y, s.center.z + d);
+            controls.update();
+        }
+
+        // --- ИСПРАВЛЕННЫЙ HUD ---
+        function createHUD() {
+            const res = 256; const total = res * res;
+            const pos = new Float32Array(total * 3);
+            const col = new Float32Array(total * 3).fill(0.15);
+            for (let i = 0; i < total; i++) {
+                let x = i % res, y = Math.floor(i / res);
+                pos[i*3] = (x - res/2) * 0.0035 - 0.75; 
+                pos[i*3+1] = (y - res/2) * 0.0035; 
+                pos[i*3+2] = -1.2;
+            }
+            monitorGeom = new THREE.BufferGeometry();
+            monitorGeom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+            monitorGeom.setAttribute('color', new THREE.BufferAttribute(col, 3));
+            monitorObj = new THREE.Points(monitorGeom, new THREE.PointsMaterial({ size: 0.003, vertexColors: true, transparent: true, opacity: 0.8 }));
+            
+            camera.add(monitorObj); // Монитор привязан к камере
+            scene.add(camera);      // Камера добавлена в сцену
+            monitorObj.visible = false;
+        }
+
+        function toggleHUD() { if(monitorObj) monitorObj.visible = !monitorObj.visible; }
+
+        const canvasSV = document.createElement('canvas'); canvasSV.width = 256; canvasSV.height = 256;
+        const ctxSV = canvasSV.getContext('2d', { alpha: false });
+
+        function applySvisionImage() {
+            videoActive = false;
+            if(videoElement) videoElement.pause();
+            const img = new Image(); img.crossOrigin = "anonymous";
+            img.src = 'GIDEON_VISION/sources/SOURCE_BEAR.jpg'; 
+            img.onload = () => {
+                ctxSV.drawImage(img, 0, 0, 256, 256);
+                updateMonitor(ctxSV.getImageData(0,0,256,256).data);
+                monitorObj.visible = true;
+            };
+        }
+
+        function applySvisionVideo() {
+            if (!videoElement) {
+                videoElement = document.createElement('video');
+                videoElement.src = 'GIDEON_VISION/sources/S_VISION_SOURCE.mp4';
+                videoElement.crossOrigin = "anonymous"; videoElement.loop = true; videoElement.muted = true;
+            }
+            videoActive = true; videoElement.play(); monitorObj.visible = true;
+        }
+
+        function resetMonitor() {
+            videoActive = false; if(videoElement) videoElement.pause();
+            monitorGeom.attributes.color.array.fill(0.15);
+            monitorGeom.attributes.color.needsUpdate = true;
+        }
+
+        function updateMonitor(pix) {
+            const colors = monitorGeom.attributes.color.array;
+            for (let i = 0; i < 256*256; i++) {
+                let idx = ( (255 - Math.floor(i/256)) * 256 + (i%256) ) * 4;
+                colors[i*3] = pix[idx]/255; colors[i*3+1] = pix[idx+1]/255; colors[i*3+2] = pix[idx+2]/255;
+            }
+            monitorGeom.attributes.color.needsUpdate = true;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (isPlaying) {
+                if (++frameSkipCounter >= 5) {
+                    currentFrame = (currentFrame + 1) % totalFrames;
+                    updateFrame(currentFrame);
+                    frameSkipCounter = 0;
+                }
+            }
+            if (videoActive && videoElement && videoElement.readyState >= 2) {
+                ctxSV.drawImage(videoElement, 0, 0, 256, 256);
+                updateMonitor(ctxSV.getImageData(0,0,256,256).data);
+            }
+            controls.update(); renderer.render(scene, camera);
+        }
+
+        document.getElementById('playBtn').onclick = () => {
+            isPlaying = !isPlaying;
+            document.getElementById('playBtn').innerText = isPlaying ? 'PAUSE' : 'PLAY';
+        };
+        document.getElementById('timeline').oninput = (e) => {
+            isPlaying = false; updateFrame(parseInt(e.target.value));
+        };
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        init();
+    </script>
+</body>
+</html>
