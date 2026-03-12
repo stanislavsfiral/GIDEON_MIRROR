@@ -17,15 +17,18 @@
         #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:2000; letter-spacing:3px; }
         #hud-toggle { position: absolute; bottom: 15px; left: 15px; z-index: 2001; background: #000; color: #ffcc00; border: 1px solid #ffcc00; width: 25px; height: 25px; cursor: pointer; }
 
-        /* СТИЛИ ДЛЯ ОКНА ИНФОРМАЦИИ */
+        /* ОБНОВЛЕННЫЕ СТИЛИ ДЛЯ ИНФО */
         #infoModal {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: rgba(0, 10, 10, 0.98); border: 2px solid #00ffcc;
-            padding: 30px; z-index: 3000; width: 420px; display: none;
+            padding: 30px; z-index: 3000; width: 450px; display: none;
             box-shadow: 0 0 50px rgba(0, 255, 204, 0.3);
+            max-height: 85vh; overflow-y: auto;
         }
-        #infoModal h3 { color: #00ffcc; margin-top: 0; letter-spacing: 2px; border-bottom: 1px solid #00ffcc55; padding-bottom: 10px; }
-        #infoModal p { font-size: 13px; line-height: 1.6; color: #aaffff; margin-bottom: 15px; }
+        #infoModal h3 { color: #00ffcc; margin-top: 0; letter-spacing: 2px; border-bottom: 1px solid #00ffcc55; padding-bottom: 10px; font-size: 16px; }
+        #infoModal h4 { color: #ffcc00; margin: 15px 0 5px 0; font-size: 13px; text-transform: uppercase; }
+        #infoModal p { font-size: 13px; line-height: 1.6; color: #aaffff; margin-bottom: 10px; }
+        #infoModal b { color: #00ffcc; }
         #closeInfo { cursor: pointer; color: #ff0055; float: right; font-weight: bold; border: 1px solid #ff0055; padding: 2px 8px; font-size: 10px; }
         #closeInfo:hover { background: #ff0055; color: #fff; }
     </style>
@@ -37,14 +40,16 @@
 
     <div id="infoModal">
         <span id="closeInfo" onclick="closeModal()">ЗАКРЫТЬ [X]</span>
-        <h3>GIDEON LAB: ИНФО</h3>
-        <p>Вы находитесь в терминале визуализации данных <b>GIDEON</b>. Это не просто 3D-графика, а интерактивная карта сверхплотных структур.</p>
-        <p><b>В чем ценность?</b> Технология позволяет мгновенно отображать до 1.5 млн точек данных. Благодаря защищенному алгоритму дешифровки "Сфираль", информация передается в безопасности и восстанавливается прямо в вашем браузере.</p>
-        <hr style="border: 0.5px solid #00ffcc33">
-        <p><b>Управление:</b><br>
-        • Мышь: вращение объекта.<br>
-        • Колесо: вход внутрь структуры.<br>
-        • S-VISION: режим анализа изображений.</p>
+        <h3>ДОБРО ПОЖАЛОВАТЬ В ТЕРМИНАЛ GIDEON</h3>
+        <p>Вы стоите на пороге новой реальности. Это не просто 3D-графика — перед вами <b>живая карта сверхплотных структур Вселенной</b>, воплощенная в цифре.</p>
+        
+        <h4>Почему это важно для вас?</h4>
+        <p>Там, где обычные системы слепнут, GIDEON видит. Мы мгновенно разворачиваем <b>1.5 миллиона точек данных</b> прямо в вашем браузере. Благодаря защищенному алгоритму <b>«Сфираль»</b>, информация не просто передается — она «свивается» заново, оставаясь недосягаемой для посторонних. Это ваша личная зона квантовой чистоты.</p>
+        
+        <h4>Управление реальностью:</h4>
+        <p>• <b>Движение (Мышь):</b> Вращайте объект, изучая его грани.<br>
+           • <b>Погружение (Колесо):</b> Войдите внутрь структуры. Посмотрите, как хаос превращается в порядок.<br>
+           • <b>S-VISION:</b> Активируйте режим квантового анализа, чтобы узреть невидимое.</p>
     </div>
 
     <div id="gideon-ui">
@@ -92,7 +97,6 @@
         let mainObj = null, animData = null, currentFrame = 0, isPlaying = false, pointsPerFrame = 0, totalFrames = 0;
         let monitorObj = null, monitorGeom = null, videoActive = false, videoElement = null, frameSkipCounter = 0;
 
-        // --- ЛОГИКА ОКНА ИНФО ---
         document.getElementById('infoBtn').onclick = () => {
             document.getElementById('infoModal').style.display = 'block';
         };
