@@ -207,7 +207,8 @@
         function createHUD() {
             const res = 256; const total = res * res;
             const pos = new Float32Array(total * 3);
-            const col = new Float32Array(total * 3).fill(0.15);
+            // ПОВЫШЕННАЯ БАЗОВАЯ ЯРКОСТЬ ДЛЯ ЭФФЕКТА СВЕЧЕНИЯ ЭФИРА (0.4)
+            const col = new Float32Array(total * 3).fill(0.4);
             for (let i = 0; i < total; i++) {
                 let x = i % res, y = Math.floor(i / res);
                 pos[i*3] = (x - res/2) * 0.0035 - 0.75; 
@@ -217,7 +218,8 @@
             monitorGeom = new THREE.BufferGeometry();
             monitorGeom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
             monitorGeom.setAttribute('color', new THREE.BufferAttribute(col, 3));
-            monitorObj = new THREE.Points(monitorGeom, new THREE.PointsMaterial({ size: 0.003, vertexColors: true, transparent: true, opacity: 0.8 }));
+            // УВЕЛИЧЕННЫЙ РАЗМЕР ТОЧЕК (0.005) И ПОЛНАЯ НЕПРОЗРАЧНОСТЬ ДЛЯ ЯРКОСТИ
+            monitorObj = new THREE.Points(monitorGeom, new THREE.PointsMaterial({ size: 0.005, vertexColors: true, transparent: true, opacity: 1.0 }));
             
             camera.add(monitorObj); 
             scene.add(camera);      
@@ -252,7 +254,8 @@
 
         function resetMonitor() {
             videoActive = false; if(videoElement) videoElement.pause();
-            monitorGeom.attributes.color.array.fill(0.15);
+            // ВОЗВРАТ К ПОД СВЕЧЕННОМУ ФОНУ ПРИ СБРОСЕ
+            monitorGeom.attributes.color.array.fill(0.4);
             monitorGeom.attributes.color.needsUpdate = true;
         }
 
