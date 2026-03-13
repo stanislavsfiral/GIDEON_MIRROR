@@ -6,10 +6,10 @@
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; color: #00ffcc; }
         
-        /* ИСПРАВЛЕННАЯ ПРАВАЯ ПАНЕЛЬ СО СКРОЛЛОМ */
+        /* ПРАВАЯ ПАНЕЛЬ СО СКРОЛЛОМ */
         #gideon-ui { 
             position: absolute; 
-            top: 20px; 
+            top: 60px; /* Сдвинули вниз, чтобы освободить место для кнопок */
             right: 20px; 
             background: rgba(0, 15, 15, 0.95); 
             padding: 25px; 
@@ -17,13 +17,13 @@
             z-index: 1000; 
             width: 280px; 
             box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
-            max-height: 90vh;
+            max-height: 80vh; /* Уменьшили высоту */
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: #00ffcc #001111;
         }
 
-        /* Стилизация скролла для Chrome/Safari */
+        /* Стилизация скролла */
         #gideon-ui::-webkit-scrollbar {
             width: 6px;
         }
@@ -38,11 +38,12 @@
             background: #ffcc00;
         }
 
+        /* ПАНЕЛЬ PLAY - СДВИНУТА ВЛЕВО */
         #anim-panel { 
             position: absolute; 
             bottom: 30px; 
-            left: 50%; 
-            transform: translateX(-50%); 
+            left: 20px; /* Было 50%, стало 20px - прижали влево */
+            transform: translateX(0); /* Убрали трансформацию */
             background: rgba(0, 15, 15, 0.95); 
             padding: 15px 30px; 
             border: 1px solid #00ffcc; 
@@ -50,6 +51,7 @@
             align-items: center; 
             gap: 20px; 
             width: 65%; 
+            max-width: 800px;
             z-index: 1000; 
         }
         
@@ -108,29 +110,31 @@
         
         #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:2000; letter-spacing:3px; }
 
-        /* ДВЕ КНОПКИ УПРАВЛЕНИЯ */
+        /* КНОПКИ УПРАВЛЕНИЯ В ПРАВОМ ВЕРХНЕМ УГЛУ */
         .control-btn {
             position: absolute;
-            bottom: 15px;
+            top: 20px;
+            right: 20px;
             z-index: 2001;
             background: #000;
             color: #ffcc00;
             border: 1px solid #ffcc00;
-            width: 25px;
-            height: 25px;
+            width: 30px;
+            height: 30px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
+            border-radius: 3px;
         }
         .control-btn:hover {
             background: #ffcc00;
             color: #000;
         }
-        #hud-toggle { left: 15px; }
-        #panel-toggle { left: 50px; }
+        #hud-toggle { right: 60px; } /* Первая кнопка */
+        #panel-toggle { right: 20px; } /* Вторая кнопка */
 
         /* ИНФО МОДАЛ */
         #infoModal {
@@ -215,13 +219,22 @@
         [data-tooltip]:hover:before {
             display: block;
         }
+
+        /* Адаптация для мобильных */
+        @media (max-width: 1000px) {
+            #anim-panel {
+                width: 80%;
+                left: 10px;
+                padding: 10px 15px;
+            }
+        }
     </style>
 </head>
 <body>
 
     <div id="loader">GIDEON: ЗАГРУЗКА МОДЕЛИ...</div>
 
-    <!-- ДВЕ КНОПКИ УПРАВЛЕНИЯ -->
+    <!-- ДВЕ КНОПКИ УПРАВЛЕНИЯ В ПРАВОМ ВЕРХНЕМ УГЛУ -->
     <button id="hud-toggle" class="control-btn" onclick="toggleHUD()" data-tooltip="Скрыть/показать S-Vision HUD">_</button>
     <button id="panel-toggle" class="control-btn" onclick="togglePanel()" data-tooltip="Скрыть/показать правую панель">≡</button>
 
@@ -541,7 +554,7 @@
             monitorObj.visible = false;
         }
 
-        // ИСПРАВЛЕННАЯ ФУНКЦИЯ ДЛЯ S-VISION HUD
+        // ФУНКЦИЯ ДЛЯ S-VISION HUD
         function toggleHUD() { 
             if (monitorObj) {
                 monitorObj.visible = !monitorObj.visible; 
@@ -549,7 +562,7 @@
             }
         }
 
-        // НОВАЯ ФУНКЦИЯ ДЛЯ ПРАВОЙ ПАНЕЛИ
+        // ФУНКЦИЯ ДЛЯ ПРАВОЙ ПАНЕЛИ
         function togglePanel() {
             const panel = document.getElementById('gideon-ui');
             if (panel) {
@@ -625,7 +638,6 @@
             updateFPS();
             
             if (isPlaying) {
-                // УВЕЛИЧЕНО С 5 ДО 30 - В 6 РАЗ МЕДЛЕННЕЕ
                 if (++frameSkipCounter >= 30) {
                     currentFrame = (currentFrame + 1) % totalFrames;
                     updateFrame(currentFrame);
