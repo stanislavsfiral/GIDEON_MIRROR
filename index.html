@@ -164,7 +164,7 @@
         <p>Два зеркально-антисимметричных витка (левый и правый), соединенных S-образным переходом. Правый виток развернут на 180° для идеальной стыковки.</p>
         
         <h4>🔄 Диполь</h4>
-        <p>Две сфирали, вложенные друг в друга. Вторая развернута на 180° по осям X и Y, создавая замкнутый цикл. <b>Нажмите кнопку [🔴🔵 ПОКАЗАТЬ ДИПОЛЬ]</b>, чтобы увидеть это.</p>
+        <p>Две сфирали, вложенные друг в друга. Вторая развернута на 180° по осям X и Y, создавая замкнутый цикл.</p>
         
         <h4>📊 Иерархия моделей</h4>
         <p>• <b>⚪ Сфираль</b> — базовый кирпичик<br>
@@ -187,53 +187,53 @@
     <div id="gideon-ui">
         <h2>GIDEON CORE V3.9.9.9.5</h2>
         
-        <!-- КАТАЛОГ МОДЕЛЕЙ С РЕАЛЬНЫМИ ИМЕНАМИ ФАЙЛОВ -->
+        <!-- КАТАЛОГ МОДЕЛЕЙ -->
         <div class="catalog-section">
             <div class="catalog-title" onclick="toggleCatalog('basic')">⚪ УРОВЕНЬ 1 — Сфирали ▼</div>
             <div id="basic-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'sfiral_base.npy')" data-tooltip="Одиночная сфираль (базовый элемент)">Сфираль</button>
+                <button class="model-btn" onclick="loadModel('static', 'sfiral_base.npy')">Сфираль</button>
             </div>
         </div>
 
         <div class="catalog-section">
             <div class="catalog-title" onclick="toggleCatalog('dipole')">🔄 УРОВЕНЬ 2 — Диполи ▼</div>
             <div id="dipole-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'sfiral_dipole.npy')" data-tooltip="Две сфирали: вторая развернута на 180° по X и Y">Диполь</button>
+                <button class="model-btn" onclick="loadModel('static', 'sfiral_dipole.npy')">Диполь</button>
             </div>
         </div>
 
         <div class="catalog-section">
             <div class="catalog-title" onclick="toggleCatalog('chains')">⛓️ УРОВЕНЬ 3 — Цепочки (с витками) ▼</div>
             <div id="chains-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'chain_v2.npy')" data-tooltip="2 сфирали, соединенные с витками">Цепочка 2</button>
-                <button class="model-btn" onclick="loadModel('static', 'chain_v4.npy')" data-tooltip="4 сфирали, соединенные с витками">Цепочка 4</button>
-                <button class="model-btn" onclick="loadModel('static', 'chain_v8.npy')" data-tooltip="8 сфиралей, соединенные с витками">Цепочка 8</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_v2.npy')">Цепочка 2</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_v4.npy')">Цепочка 4</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_v8.npy')">Цепочка 8</button>
             </div>
         </div>
 
         <div class="catalog-section">
             <div class="catalog-title" onclick="toggleCatalog('chains_opt')">⚡ УРОВЕНЬ 3 — Цепочки (без витков) ▼</div>
             <div id="chains_opt-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x2.npy')" data-tooltip="2 сфирали, соединенные напрямую">Цепочка 2 opt</button>
-                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x4.npy')" data-tooltip="4 сфирали, соединенные напрямую">Цепочка 4 opt</button>
-                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x8.npy')" data-tooltip="8 сфиралей, соединенные напрямую">Цепочка 8 opt</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x2.npy')">Цепочка 2 opt</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x4.npy')">Цепочка 4 opt</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x8.npy')">Цепочка 8 opt</button>
             </div>
         </div>
 
         <div class="catalog-section">
             <div class="catalog-title" onclick="toggleCatalog('rings')">💫 УРОВЕНЬ 4 — Кольца ▼</div>
             <div id="rings-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'ring_opt_x8.npy')" data-tooltip="Кольцо из 8 сфиралей">Кольцо 8</button>
-                <button class="model-btn" onclick="loadModel('static', 'ring_chain_v8.npy')" data-tooltip="Кольцо-цепочка">Кольцо-цепочка</button>
+                <button class="model-btn" onclick="loadModel('static', 'ring_opt_x8.npy')">Кольцо 8</button>
+                <button class="model-btn" onclick="loadModel('static', 'ring_chain_v8.npy')">Кольцо-цепочка</button>
             </div>
         </div>
 
         <div class="catalog-section">
             <div class="catalog-title" onclick="toggleCatalog('core')">💎 ОСОБЫЕ МОДЕЛИ ▼</div>
             <div id="core-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'gideon_core.npy')" data-tooltip="Ядро GIDEON">Ядро</button>
-                <button class="model-btn" onclick="loadModel('static', 'gideon_core_13.npy')" data-tooltip="Ядро GIDEON v13">Ядро v13</button>
-                <button class="model-btn" onclick="loadModel('static', 'apple_double.npy')" data-tooltip="Экспериментальная модель">Apple Double</button>
+                <button class="model-btn" onclick="loadModel('static', 'gideon_core.npy')">Ядро</button>
+                <button class="model-btn" onclick="loadModel('static', 'gideon_core_13.npy')">Ядро v13</button>
+                <button class="model-btn" onclick="loadModel('static', 'apple_double.npy')">Apple Double</button>
             </div>
         </div>
 
@@ -243,14 +243,9 @@
         
         <!-- S-VISION -->
         <div class="label">⚡ S-VISION:</div>
-        <button class="btn sv-btn" onclick="applySvisionImage()" data-tooltip="Разложить фото (300K точек) по модели">📷 ФОТО</button>
-        <button class="btn sv-btn" style="border-color:#ff00ff; color:#ff00ff;" onclick="applySvisionVideo()" data-tooltip="Разложить видео (1.5M точек) по модели">🎬 ВИДЕО</button>
-        <button class="btn" style="margin-top:5px; border-style:dotted;" onclick="resetMonitor()" data-tooltip="Очистить проекцию">ОЧИСТИТЬ ЭКРАН</button>
-
-        <!-- КНОПКА ПОДСВЕТКИ ДИПОЛЯ -->
-        <button class="btn" id="dipoleHighlightBtn" onclick="toggleDipoleHighlight()" style="background: rgba(255,0,0,0.1); border-color: #ff4444; color: #ff8888; margin-top: 10px;">
-            🔴🔵 ПОКАЗАТЬ ДИПОЛЬ
-        </button>
+        <button class="btn sv-btn" onclick="applySvisionImage()">📷 ФОТО</button>
+        <button class="btn sv-btn" style="border-color:#ff00ff; color:#ff00ff;" onclick="applySvisionVideo()">🎬 ВИДЕО</button>
+        <button class="btn" style="margin-top:5px; border-style:dotted;" onclick="resetMonitor()">ОЧИСТИТЬ</button>
 
         <!-- СТАТИСТИКА -->
         <div id="stats">
@@ -273,9 +268,8 @@
             </div>
         </div>
         
-        <button class="btn" onclick="centerView()" data-tooltip="Вернуть камеру в центр">CENTER VIEW</button>
-        
-        <button class="btn" id="infoBtn" style="background: rgba(0,255,204,0.1); margin-top: 15px; border-color: #00ffcc; color: #00ffcc; font-weight: bold;" data-tooltip="О проекте">? ИНФОРМАЦИЯ</button>
+        <button class="btn" onclick="centerView()">CENTER VIEW</button>
+        <button class="btn" id="infoBtn" style="background: rgba(0,255,204,0.1); margin-top: 15px;" data-tooltip="О проекте">? ИНФОРМАЦИЯ</button>
     </div>
 
     <div id="anim-panel">
@@ -302,14 +296,10 @@
         let mainObj = null, animData = null, currentFrame = 0, isPlaying = false, pointsPerFrame = 0, totalFrames = 0;
         let monitorObj = null, monitorGeom = null, videoActive = false, videoElement = null, frameSkipCounter = 0;
 
-        // ПЕРЕМЕННЫЕ ДЛЯ ПОДСВЕТКИ
-        let highlightMode = false;
-        let originalColors = null;
-
         // ПЕРЕМЕННЫЕ ДЛЯ FPS
         let fps = 0, lastFpsUpdate = performance.now(), framesThisSecond = 0;
 
-        // ФУНКЦИЯ ДЛЯ КАТАЛОГА
+        // ФУНКЦИИ
         function toggleCatalog(id) {
             const el = document.getElementById(id + '-models');
             if (el) {
@@ -317,73 +307,8 @@
             }
         }
 
-        // ФУНКЦИЯ ЗАГРУЗКИ МОДЕЛИ
         function loadModel(type, fileName) {
             switchModel(type, fileName);
-            if (highlightMode) {
-                toggleDipoleHighlight();
-            }
-        }
-
-        // ФУНКЦИЯ ПОДСВЕТКИ ДИПОЛЯ
-        function toggleDipoleHighlight() {
-            if (!mainObj) return;
-            
-            highlightMode = !highlightMode;
-            const btn = document.getElementById('dipoleHighlightBtn');
-            
-            if (highlightMode) {
-                const positionAttr = mainObj.geometry.attributes.position;
-                const count = positionAttr.count;
-                
-                if (!mainObj.geometry.attributes.color) {
-                    const colors = new Float32Array(count * 3);
-                    for (let i = 0; i < count; i++) {
-                        colors[i*3] = 0.5;
-                        colors[i*3+1] = 0.5;
-                        colors[i*3+2] = 0.5;
-                    }
-                    mainObj.geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-                }
-                
-                originalColors = mainObj.geometry.attributes.color.array.slice();
-                
-                const colors = mainObj.geometry.attributes.color.array;
-                const half = Math.floor(count / 2);
-                
-                for (let i = 0; i < count; i++) {
-                    if (i < half) {
-                        colors[i*3] = 1.0;
-                        colors[i*3+1] = 0.2;
-                        colors[i*3+2] = 0.2;
-                    } else {
-                        colors[i*3] = 0.2;
-                        colors[i*3+1] = 0.4;
-                        colors[i*3+2] = 1.0;
-                    }
-                }
-                
-                mainObj.geometry.attributes.color.needsUpdate = true;
-                mainObj.material.vertexColors = true;
-                btn.style.background = 'rgba(255,0,0,0.3)';
-                btn.style.color = '#ffaa00';
-                btn.style.borderColor = '#ffaa00';
-                btn.innerHTML = '🔴🔵 СБРОСИТЬ ЦВЕТ';
-            } else {
-                if (originalColors && mainObj.geometry.attributes.color) {
-                    const colors = mainObj.geometry.attributes.color.array;
-                    for (let i = 0; i < colors.length; i++) {
-                        colors[i] = originalColors[i];
-                    }
-                    mainObj.geometry.attributes.color.needsUpdate = true;
-                } else {
-                    mainObj.material.vertexColors = false;
-                }
-                btn.style.background = 'rgba(255,0,0,0.1)';
-                btn.style.color = '#ff8888';
-                btn.style.borderColor = '#ff4444';
-                btn.innerHTML = '🔴🔵 ПОКАЗАТЬ ДИПОЛЬ';
-            }
         }
 
         document.getElementById('infoBtn').onclick = () => {
@@ -405,12 +330,12 @@
         }
 
         async function init() {
-            // Удалены проблемные строки с loadFolder
+            await loadFolder('static', 'staticSelector');
+            await loadFolder('dynamic', 'dynamicSelector');
             createHUD();
             animate();
         }
 
-        // Функция loadFolder больше не используется, но оставлена для совместимости
         async function loadFolder(folder, selectId) {
             try {
                 const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/models/${folder}`);
@@ -431,10 +356,6 @@
             if (!fileName) return;
             document.getElementById('loader').style.display = 'flex';
             isPlaying = false;
-            
-            if (highlightMode) {
-                toggleDipoleHighlight();
-            }
             
             try {
                 const res = await fetch(`models/${type}/${fileName}`);
@@ -508,34 +429,11 @@
             if (mainObj) scene.remove(mainObj);
             const geo = new THREE.BufferGeometry();
             geo.setAttribute('position', new THREE.BufferAttribute(data, 3));
-            
-            const colors = new Float32Array(data.length);
-            for (let i = 0; i < data.length/3; i++) {
-                colors[i*3] = 0.5;
-                colors[i*3+1] = 0.5;
-                colors[i*3+2] = 0.5;
-            }
-            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-            
-            const material = new THREE.PointsMaterial({ 
-                color: 0x00ffcc, 
-                size: 2, 
-                sizeAttenuation: false,
-                vertexColors: false 
-            });
-            
-            mainObj = new THREE.Points(geo, material);
+            mainObj = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x00ffcc, size: 2, sizeAttenuation: false }));
             scene.add(mainObj);
             
             const vertexCount = data.length / 3;
             document.getElementById('count').innerText = Math.floor(vertexCount);
-            
-            highlightMode = false;
-            const btn = document.getElementById('dipoleHighlightBtn');
-            btn.style.background = 'rgba(255,0,0,0.1)';
-            btn.style.color = '#ff8888';
-            btn.style.borderColor = '#ff4444';
-            btn.innerHTML = '🔴🔵 ПОКАЗАТЬ ДИПОЛЬ';
         }
 
         function updateFrame(f) {
@@ -579,6 +477,7 @@
 
         function toggleHUD() { if(monitorObj) monitorObj.visible = !monitorObj.visible; }
 
+        // S-VISION функции
         const canvasSV = document.createElement('canvas'); canvasSV.width = 256; canvasSV.height = 256;
         const ctxSV = canvasSV.getContext('2d', { alpha: false });
 
@@ -652,4 +551,28 @@
                     frameSkipCounter = 0;
                 }
             }
-            if (videoActive && videoElement && video
+            if (videoActive && videoElement && videoElement.readyState >= 2) {
+                ctxSV.drawImage(videoElement, 0, 0, 256, 256);
+                updateMonitor(ctxSV.getImageData(0,0,256,256).data);
+            }
+            controls.update(); renderer.render(scene, camera);
+        }
+
+        document.getElementById('playBtn').onclick = () => {
+            isPlaying = !isPlaying;
+            document.getElementById('playBtn').innerText = isPlaying ? 'PAUSE' : 'PLAY';
+        };
+        document.getElementById('timeline').oninput = (e) => {
+            isPlaying = false; updateFrame(parseInt(e.target.value));
+        };
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        init();
+    </script>
+</body>
+</html>
