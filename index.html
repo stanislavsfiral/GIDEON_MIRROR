@@ -71,6 +71,36 @@
             margin: 8px 0 5px 0;
             border-top: 1px dashed #00ffcc33;
         }
+
+        /* НОВЫЕ СТИЛИ ДЛЯ РЕГУЛЯТОРА СКОРОСТИ */
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(0, 30, 30, 0.8);
+            border: 1px solid #00ffcc33;
+            border-radius: 4px;
+        }
+        .speed-label {
+            color: #55aaaa;
+            font-size: 8px;
+            text-transform: uppercase;
+            min-width: 40px;
+        }
+        .speed-value {
+            color: #ffcc00;
+            font-size: 10px;
+            min-width: 35px;
+            text-align: right;
+        }
+        input[type=range].speed-slider {
+            flex: 1;
+            height: 3px;
+            background: #00ffcc33;
+            accent-color: #ffcc00;
+        }
     </style>
 </head>
 <body>
@@ -93,7 +123,8 @@
         <h4>Управление:</h4>
         <p>• <b>Мышь:</b> вращение и панорамирование<br>
            • <b>Колесо:</b> масштабирование / погружение в структуру<br>
-           • <b>S-VISION:</b> отображение тестового изображения на HUD-панели</p>
+           • <b>S-VISION:</b> отображение тестового изображения на HUD-панели<br>
+           • <b>Скорость:</b> регулятор темпа анимации</p>
         
         <h4>О проекте:</h4>
         <p>Инструмент разработан для анализа топологии «Сфираль» и демонстрации принципа прямой адресации в волюметрических дисплеях. Подробнее: <a href="https://doi.org/10.5281/zenodo.18901801" target="_blank">Zenodo DOI: 10.5281/zenodo.18901801</a></p>
@@ -131,6 +162,13 @@
                 <span id="frame-counter" class="stat-value">0/0</span>
             </div>
         </div>
+
+        <!-- НОВЫЙ РЕГУЛЯТОР СКОРОСТИ -->
+        <div class="speed-control" id="speedControl" style="display: none;">
+            <span class="speed-label">СКОРОСТЬ</span>
+            <input type="range" id="speedSlider" class="speed-slider" min="1" max="50" value="10">
+            <span id="speedValue" class="speed-value">1.0x</span>
+        </div>
         
         <button class="btn" onclick="centerView()">CENTER VIEW</button>
         
@@ -161,6 +199,10 @@
         let mainObj = null, animData = null, currentFrame = 0, isPlaying = false, pointsPerFrame = 0, totalFrames = 0;
         let monitorObj = null, monitorGeom = null, videoActive = false, videoElement = null, frameSkipCounter = 0;
 
+        // НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ СКОРОСТИ
+        let animationSpeed = 10; // Значение по умолчанию (было 5, теперь 10 = медленнее)
+        let frameCounter = 0;
+
         // ПЕРЕМЕННЫЕ ДЛЯ FPS
         let fps = 0, lastFpsUpdate = performance.now(), framesThisSecond = 0;
 
@@ -169,6 +211,20 @@
         };
         function closeModal() {
             document.getElementById('infoModal').style.display = 'none';
+        }
+
+        // НОВАЯ ФУНКЦИЯ ДЛЯ РЕГУЛЯТОРА СКОРОСТИ
+        function initSpeedControl() {
+            const slider = document.getElementById('speedSlider');
+            const valueDisplay = document.getElementById('speedValue');
+            
+            slider.addEventListener('input', (e) => {
+                const val = parseInt(e.target.value);
+                animationSpeed = val;
+                // Показываем как множитель (1.0 = базовая скорость)
+                const speedFactor = (50 / val).toFixed(1);
+                valueDisplay.innerText = speedFactor + 'x';
+            });
         }
 
         function decryptGideon(buffer) {
@@ -186,6 +242,7 @@
             await loadFolder('static', 'staticSelector');
             await loadFolder('dynamic', 'dynamicSelector');
             createHUD();
+            initSpeedControl();
             animate();
         }
 
@@ -203,7 +260,7 @@
             } catch(e) { console.error("Folder Load Error:", e); }
         }
 
-        // ИСПРАВЛЕННАЯ ФУНКЦИЯ - ВИД СВЕРХУ ДЛЯ ДИНАМИЧЕСКИХ МОДЕЛЕЙ
+        // ИСПРАВЛЕННАЯ ФУНКЦИЯ - ВИД С ТОРЦА ДЛЯ ДИНАМИЧЕСКИХ МОДЕЛЕЙ
         async function switchModel(type, fileName) {
             if (!fileName) return;
             document.getElementById('loader').style.display = 'flex';
@@ -219,11 +276,12 @@
                     pointsPerFrame = floatData.length / 3;
                     animData = floatData; totalFrames = 1;
                     document.getElementById('anim-panel').style.display = 'none';
+                    document.getElementById('speedControl').style.display = 'none';
                     document.getElementById('modeDisplay').innerText = 'STATIC (SECURE)';
                     renderPoints(floatData);
                     document.getElementById('frame-counter').innerText = `1/1`;
                     
-                    // Статические модели - обычный центр
+                    // Статические модели - вид сбоку
                     setTimeout(() => {
                         if (mainObj) {
                             mainObj.geometry.computeBoundingSphere();
@@ -242,18 +300,19 @@
                         floatData = new Float32Array(buffer.slice(12));
                         animData = floatData;
                         document.getElementById('anim-panel').style.display = 'flex';
+                        document.getElementById('speedControl').style.display = 'flex';
                         document.getElementById('timeline').max = totalFrames - 1;
                         document.getElementById('modeDisplay').innerText = 'DYNAMIC (RAW)';
                         updateFrame(0);
                         
-                        // ДИНАМИЧЕСКИЕ МОДЕЛИ - ВИД СВЕРХУ
+                        // ДИНАМИЧЕСКИЕ МОДЕЛИ - ВИД С ТОРЦА (ВДОЛЬ ОСИ Z)
                         setTimeout(() => {
                             if (mainObj) {
                                 mainObj.geometry.computeBoundingSphere();
                                 const s = mainObj.geometry.boundingSphere;
                                 controls.target.copy(s.center);
-                                // Устанавливаем камеру СВЕРХУ (по оси Y)
-                                camera.position.set(s.center.x, s.center.y + s.radius * 2.5, s.center.z);
+                                // Устанавливаем камеру С ТОРЦА (вдоль оси Z)
+                                camera.position.set(s.center.x, s.center.y, s.center.z + s.radius * 3.5);
                                 controls.update();
                             }
                         }, 200);
@@ -262,6 +321,7 @@
                         pointsPerFrame = floatData.length / 3;
                         animData = floatData; totalFrames = 1;
                         renderPoints(floatData);
+                        document.getElementById('speedControl').style.display = 'none';
                         document.getElementById('frame-counter').innerText = `1/1`;
                         
                         setTimeout(() => {
@@ -399,10 +459,12 @@
             updateFPS();
             
             if (isPlaying) {
-                if (++frameSkipCounter >= 5) {
+                frameCounter++;
+                // Используем animationSpeed для контроля скорости (меньше = медленнее)
+                if (frameCounter >= animationSpeed) {
                     currentFrame = (currentFrame + 1) % totalFrames;
                     updateFrame(currentFrame);
-                    frameSkipCounter = 0;
+                    frameCounter = 0;
                 }
             }
             if (videoActive && videoElement && videoElement.readyState >= 2) {
