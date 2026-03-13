@@ -169,8 +169,8 @@
         <h4>📊 Иерархия моделей</h4>
         <p>• <b>⚪ Сфираль</b> — базовый кирпичик<br>
            • <b>🔄 Диполь</b> — две сфирали (одна перевернута)<br>
-           • <b>⛓️ Цепочки</b> — сфирали, соединенные последовательно (с витками или без)<br>
-           • <b>💫 Кольца</b> — замкнутые структуры<br>
+           • <b>⛓️ Цепочки с витками</b> — сфирали, соединенные последовательно с промежуточными витками<br>
+           • <b>⚡ Цепочки без витков</b> — сфирали, соединенные напрямую<br>
            • <b>💎 Ядра</b> — особые модели GIDEON</p>
         
         <h4>⚡ Принцип "Геометрия как индекс"</h4>
@@ -191,49 +191,43 @@
         <div class="catalog-section">
             <div class="catalog-title" onclick="toggleCatalog('basic')">⚪ УРОВЕНЬ 1 — Сфирали ▼</div>
             <div id="basic-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'sfiral_base.npy')">Сфираль</button>
+                <button class="model-btn" onclick="loadModel('static', 'sfiral_base.npy')" data-tooltip="Одиночная сфираль (базовый элемент)">Сфираль</button>
             </div>
         </div>
 
         <div class="catalog-section">
             <div class="catalog-title" onclick="toggleCatalog('dipole')">🔄 УРОВЕНЬ 2 — Диполи ▼</div>
             <div id="dipole-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'sfiral_dipole.npy')">Диполь</button>
+                <button class="model-btn" onclick="loadModel('static', 'sfiral_dipole.npy')" data-tooltip="Две сфирали: вторая развернута на 180° по X и Y">Диполь</button>
             </div>
         </div>
 
         <div class="catalog-section">
-            <div class="catalog-title" onclick="toggleCatalog('chains')">⛓️ УРОВЕНЬ 3 — Цепочки (с витками) ▼</div>
-            <div id="chains-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'chain_v2.npy')">Цепочка 2</button>
-                <button class="model-btn" onclick="loadModel('static', 'chain_v4.npy')">Цепочка 4</button>
-                <button class="model-btn" onclick="loadModel('static', 'chain_v8.npy')">Цепочка 8</button>
+            <div class="catalog-title" onclick="toggleCatalog('chains_with_loops')">⛓️ УРОВЕНЬ 3 — Цепочки (с витками) ▼</div>
+            <div id="chains_with_loops-models" class="catalog-items">
+                <button class="model-btn" onclick="loadModel('static', 'chain_v2.npy')" data-tooltip="2 сфирали, соединенные с витками">Цепочка 2</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_v4.npy')" data-tooltip="4 сфирали, соединенные с витками">Цепочка 4</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_v8.npy')" data-tooltip="8 сфиралей, соединенные с витками">Цепочка 8</button>
             </div>
         </div>
 
         <div class="catalog-section">
-            <div class="catalog-title" onclick="toggleCatalog('chains_opt')">⚡ УРОВЕНЬ 3 — Цепочки (без витков) ▼</div>
-            <div id="chains_opt-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x2.npy')">Цепочка 2 opt</button>
-                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x4.npy')">Цепочка 4 opt</button>
-                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x8.npy')">Цепочка 8 opt</button>
-            </div>
-        </div>
-
-        <div class="catalog-section">
-            <div class="catalog-title" onclick="toggleCatalog('rings')">💫 УРОВЕНЬ 4 — Кольца ▼</div>
-            <div id="rings-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'ring_opt_x8.npy')">Кольцо 8</button>
-                <button class="model-btn" onclick="loadModel('static', 'ring_chain_v8.npy')">Кольцо-цепочка</button>
+            <div class="catalog-title" onclick="toggleCatalog('chains_no_loops')">⚡ УРОВЕНЬ 3 — Цепочки (без витков) ▼</div>
+            <div id="chains_no_loops-models" class="catalog-items">
+                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x2.npy')" data-tooltip="2 сфирали, соединенные напрямую (без витков)">Цепочка 2 opt</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x4.npy')" data-tooltip="4 сфирали, соединенные напрямую (без витков)">Цепочка 4 opt</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x8.npy')" data-tooltip="8 сфиралей, соединенные напрямую (без витков)">Цепочка 8 opt</button>
+                <button class="model-btn" onclick="loadModel('static', 'ring_opt_x8.npy')" data-tooltip="8 сфиралей без витков (альтернативная версия)">Цепочка 8 v2</button>
+                <button class="model-btn" onclick="loadModel('static', 'ring_chain_v8.npy')" data-tooltip="8 сфиралей без витков (особая версия)">Цепочка 8 special</button>
             </div>
         </div>
 
         <div class="catalog-section">
             <div class="catalog-title" onclick="toggleCatalog('core')">💎 ОСОБЫЕ МОДЕЛИ ▼</div>
             <div id="core-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'gideon_core.npy')">Ядро</button>
-                <button class="model-btn" onclick="loadModel('static', 'gideon_core_13.npy')">Ядро v13</button>
-                <button class="model-btn" onclick="loadModel('static', 'apple_double.npy')">Apple Double</button>
+                <button class="model-btn" onclick="loadModel('static', 'gideon_core.npy')" data-tooltip="Ядро GIDEON">Ядро</button>
+                <button class="model-btn" onclick="loadModel('static', 'gideon_core_13.npy')" data-tooltip="Ядро GIDEON v13">Ядро v13</button>
+                <button class="model-btn" onclick="loadModel('static', 'apple_double.npy')" data-tooltip="Экспериментальная модель">Apple Double</button>
             </div>
         </div>
 
@@ -243,9 +237,9 @@
         
         <!-- S-VISION -->
         <div class="label">⚡ S-VISION:</div>
-        <button class="btn sv-btn" onclick="applySvisionImage()">📷 ФОТО</button>
-        <button class="btn sv-btn" style="border-color:#ff00ff; color:#ff00ff;" onclick="applySvisionVideo()">🎬 ВИДЕО</button>
-        <button class="btn" style="margin-top:5px; border-style:dotted;" onclick="resetMonitor()">ОЧИСТИТЬ</button>
+        <button class="btn sv-btn" onclick="applySvisionImage()" data-tooltip="Разложить фото (300K точек) по модели">📷 ФОТО</button>
+        <button class="btn sv-btn" style="border-color:#ff00ff; color:#ff00ff;" onclick="applySvisionVideo()" data-tooltip="Разложить видео (1.5M точек) по модели">🎬 ВИДЕО</button>
+        <button class="btn" style="margin-top:5px; border-style:dotted;" onclick="resetMonitor()" data-tooltip="Очистить проекцию">ОЧИСТИТЬ</button>
 
         <!-- СТАТИСТИКА -->
         <div id="stats">
@@ -268,7 +262,7 @@
             </div>
         </div>
         
-        <button class="btn" onclick="centerView()">CENTER VIEW</button>
+        <button class="btn" onclick="centerView()" data-tooltip="Вернуть камеру в центр">CENTER VIEW</button>
         <button class="btn" id="infoBtn" style="background: rgba(0,255,204,0.1); margin-top: 15px;" data-tooltip="О проекте">? ИНФОРМАЦИЯ</button>
     </div>
 
