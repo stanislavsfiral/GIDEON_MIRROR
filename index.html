@@ -305,14 +305,14 @@
                         document.getElementById('modeDisplay').innerText = 'DYNAMIC (RAW)';
                         updateFrame(0);
                         
-                        // ДИНАМИЧЕСКИЕ МОДЕЛИ - ВИД С ТОРЦА (ВДОЛЬ ОСИ Z)
+                        // ДИНАМИЧЕСКИЕ МОДЕЛИ - ВИД С ТОРЦА (ВДОЛЬ ОСИ X)
                         setTimeout(() => {
                             if (mainObj) {
                                 mainObj.geometry.computeBoundingSphere();
                                 const s = mainObj.geometry.boundingSphere;
                                 controls.target.copy(s.center);
-                                // Устанавливаем камеру С ТОРЦА (вдоль оси Z)
-                                camera.position.set(s.center.x, s.center.y, s.center.z + s.radius * 3.5);
+                                // Устанавливаем камеру С ТОРЦА (вдоль оси X)
+                                camera.position.set(s.center.x + s.radius * 3.5, s.center.y, s.center.z);
                                 controls.update();
                             }
                         }, 200);
