@@ -27,6 +27,8 @@
         #infoModal h4 { color: #ffcc00; margin: 15px 0 5px 0; font-size: 13px; text-transform: uppercase; }
         #infoModal p { font-size: 13px; line-height: 1.6; color: #aaffff; margin-bottom: 10px; }
         #infoModal b { color: #00ffcc; }
+        #infoModal a { color: #ffcc00; text-decoration: none; border-bottom: 1px dashed #ffcc00; }
+        #infoModal a:hover { color: #ffffff; border-bottom: 1px solid #ffffff; }
         #closeInfo { cursor: pointer; color: #ff0055; float: right; font-weight: bold; border: 1px solid #ff0055; padding: 2px 8px; font-size: 10px; }
         #closeInfo:hover { background: #ff0055; color: #fff; }
 
@@ -73,21 +75,28 @@
 </head>
 <body>
 
-    <div id="loader">GIDEON: DECRYPTING QUANTUM DATA...</div>
+    <div id="loader">GIDEON: HIGH-PERFORMANCE VISUALIZATION...</div>
     <button id="hud-toggle" onclick="toggleHUD()">_</button>
 
+    <!-- ПРОФЕССИОНАЛЬНЫЙ ИНФОРМАЦИОННЫЙ МОДАЛ -->
     <div id="infoModal">
         <span id="closeInfo" onclick="closeModal()">ЗАКРЫТЬ [X]</span>
-        <h3>ДОБРО ПОЖАЛОВАТЬ В ТЕРМИНАЛ GIDEON</h3>
-        <p>Вы стоите на пороге новой реальности. Это не просто 3D-графика — перед вами <b>живая карта сверхплотных структур Вселенной</b>, воплощенная в цифре.</p>
+        <h3>GIDEON: High-Performance Volumetric Visualization</h3>
+        <p>Данный инструмент демонстрирует метод прямой адресации данных <b>"Геометрия как индекс"</b> на примере нейроморфной топологии <b>«Сфираль»</b>. Каждая точка в пространстве является одновременно координатой и адресом элемента данных, что позволяет достичь O(1) доступа без использования поисковых структур.</p>
         
-        <h4>Почему это важно для вас?</h4>
-        <p>Там, где обычные системы слепнут, GIDEON видит. Мы мгновенно разворачиваем <b>1.5 миллиона точек данных</b> прямо в вашем браузере. Благодаря защищенному алгоритму <b>«Сфираль»</b>, информация не просто передается — она «свивается» заново, оставаясь недосягаемой для посторонних. Это ваша личная зона квантовой чистоты.</p>
+        <h4>Технические характеристики:</h4>
+        <p>• <b>Рендеринг:</b> до 1.5 млн вершин при 60 FPS в браузере<br>
+           • <b>Формат данных:</b> бинарные .npy (прямое отображение в GPU)<br>
+           • <b>Архитектура:</b> 4 кольца × 5 уровней вложенности (патент RU 98676 U1)<br>
+           • <b>Цветовая иерархия:</b> циан (ядро) → синий → фиолетовый (периферия)</p>
         
-        <h4>Управление реальностью:</h4>
-        <p>• <b>Движение (Мышь):</b> Вращайте объект, изучая его грани.<br>
-           • <b>Погружение (Колесо):</b> Войдите внутрь структуры. Посмотрите, как хаос превращается в порядок.<br>
-           • <b>S-VISION:</b> Активируйте режим квантового анализа, чтобы узреть невидимое.</p>
+        <h4>Управление:</h4>
+        <p>• <b>Мышь:</b> вращение и панорамирование<br>
+           • <b>Колесо:</b> масштабирование / погружение в структуру<br>
+           • <b>S-VISION:</b> отображение тестового изображения на HUD-панели</p>
+        
+        <h4>О проекте:</h4>
+        <p>Инструмент разработан для анализа топологии «Сфираль» и демонстрации принципа прямой адресации в волюметрических дисплеях. Подробнее: <a href="https://doi.org/10.5281/zenodo.18901801" target="_blank">Zenodo DOI: 10.5281/zenodo.18901801</a></p>
     </div>
 
     <div id="gideon-ui">
@@ -102,7 +111,7 @@
         <button class="btn sv-btn" style="border-color:#ff00ff; color:#ff00ff;" onclick="applySvisionVideo()">S-VISION VIDEO</button>
         <button class="btn" style="margin-top:5px; border-style:dotted;" onclick="resetMonitor()">ОЧИСТИТЬ ЭКРАН</button>
 
-        <!-- ОБНОВЛЕННЫЙ БЛОК СТАТИСТИКИ -->
+        <!-- БЛОК СТАТИСТИКИ -->
         <div id="stats">
             <div class="stat-row">
                 <span class="stat-label">ВЕРШИН</span>
@@ -152,7 +161,7 @@
         let mainObj = null, animData = null, currentFrame = 0, isPlaying = false, pointsPerFrame = 0, totalFrames = 0;
         let monitorObj = null, monitorGeom = null, videoActive = false, videoElement = null, frameSkipCounter = 0;
 
-        // НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ FPS
+        // ПЕРЕМЕННЫЕ ДЛЯ FPS
         let fps = 0, lastFpsUpdate = performance.now(), framesThisSecond = 0;
 
         document.getElementById('infoBtn').onclick = () => {
@@ -194,6 +203,7 @@
             } catch(e) { console.error("Folder Load Error:", e); }
         }
 
+        // ИСПРАВЛЕННАЯ ФУНКЦИЯ - ВИД СВЕРХУ ДЛЯ ДИНАМИЧЕСКИХ МОДЕЛЕЙ
         async function switchModel(type, fileName) {
             if (!fileName) return;
             document.getElementById('loader').style.display = 'flex';
@@ -211,8 +221,18 @@
                     document.getElementById('anim-panel').style.display = 'none';
                     document.getElementById('modeDisplay').innerText = 'STATIC (SECURE)';
                     renderPoints(floatData);
-                    // ОБНОВЛЯЕМ СЧЕТЧИК КАДРОВ
                     document.getElementById('frame-counter').innerText = `1/1`;
+                    
+                    // Статические модели - обычный центр
+                    setTimeout(() => {
+                        if (mainObj) {
+                            mainObj.geometry.computeBoundingSphere();
+                            const s = mainObj.geometry.boundingSphere;
+                            controls.target.copy(s.center);
+                            camera.position.set(s.center.x, s.center.y, s.center.z + s.radius * 3.5);
+                            controls.update();
+                        }
+                    }, 200);
                 } else {
                     const checkView = new DataView(buffer);
                     const magic = checkView.getUint32(0, true);
@@ -225,21 +245,41 @@
                         document.getElementById('timeline').max = totalFrames - 1;
                         document.getElementById('modeDisplay').innerText = 'DYNAMIC (RAW)';
                         updateFrame(0);
+                        
+                        // ДИНАМИЧЕСКИЕ МОДЕЛИ - ВИД СВЕРХУ
+                        setTimeout(() => {
+                            if (mainObj) {
+                                mainObj.geometry.computeBoundingSphere();
+                                const s = mainObj.geometry.boundingSphere;
+                                controls.target.copy(s.center);
+                                // Устанавливаем камеру СВЕРХУ (по оси Y)
+                                camera.position.set(s.center.x, s.center.y + s.radius * 2.5, s.center.z);
+                                controls.update();
+                            }
+                        }, 200);
                     } else {
                         floatData = new Float32Array(buffer);
                         pointsPerFrame = floatData.length / 3;
                         animData = floatData; totalFrames = 1;
                         renderPoints(floatData);
                         document.getElementById('frame-counter').innerText = `1/1`;
+                        
+                        setTimeout(() => {
+                            if (mainObj) {
+                                mainObj.geometry.computeBoundingSphere();
+                                const s = mainObj.geometry.boundingSphere;
+                                controls.target.copy(s.center);
+                                camera.position.set(s.center.x, s.center.y, s.center.z + s.radius * 3.5);
+                                controls.update();
+                            }
+                        }, 200);
                     }
                 }
-                setTimeout(centerView, 100);
                 document.getElementById('count').innerText = Math.floor(pointsPerFrame);
             } catch(e) { console.error("Model Load Error:", e); }
             document.getElementById('loader').style.display = 'none';
         }
 
-        // ИСПРАВЛЕННАЯ ФУНКЦИЯ RENDERPOINTS - ДОБАВЛЕНО ОБНОВЛЕНИЕ СЧЕТЧИКА
         function renderPoints(data) {
             if (mainObj) scene.remove(mainObj);
             const geo = new THREE.BufferGeometry();
@@ -247,12 +287,10 @@
             mainObj = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x00ffcc, size: 2, sizeAttenuation: false }));
             scene.add(mainObj);
             
-            // ОБНОВЛЯЕМ СЧЕТЧИК ВЕРШИН
             const vertexCount = data.length / 3;
             document.getElementById('count').innerText = Math.floor(vertexCount);
         }
 
-        // ИСПРАВЛЕННАЯ ФУНКЦИЯ UPDATEFRAME - ДОБАВЛЕНО ОБНОВЛЕНИЕ СЧЕТЧИКА КАДРОВ
         function updateFrame(f) {
             if (!animData) return;
             const offset = f * pointsPerFrame * 3;
@@ -275,7 +313,6 @@
         function createHUD() {
             const res = 256; const total = res * res;
             const pos = new Float32Array(total * 3);
-            // ПОВЫШЕННАЯ БАЗОВАЯ ЯРКОСТЬ ДЛЯ ЭФФЕКТА СВЕЧЕНИЯ ЭФИРА (0.4)
             const col = new Float32Array(total * 3).fill(0.4);
             for (let i = 0; i < total; i++) {
                 let x = i % res, y = Math.floor(i / res);
@@ -286,7 +323,6 @@
             monitorGeom = new THREE.BufferGeometry();
             monitorGeom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
             monitorGeom.setAttribute('color', new THREE.BufferAttribute(col, 3));
-            // УВЕЛИЧЕННЫЙ РАЗМЕР ТОЧЕК (0.005) И ПОЛНАЯ НЕПРОЗРАЧНОСТЬ ДЛЯ ЯРКОСТИ
             monitorObj = new THREE.Points(monitorGeom, new THREE.PointsMaterial({ size: 0.005, vertexColors: true, transparent: true, opacity: 1.0 }));
             
             camera.add(monitorObj); 
@@ -322,7 +358,6 @@
 
         function resetMonitor() {
             videoActive = false; if(videoElement) videoElement.pause();
-            // ВОЗВРАТ К ПОД СВЕЧЕННОМУ ФОНУ ПРИ СБРОСЕ
             monitorGeom.attributes.color.array.fill(0.4);
             monitorGeom.attributes.color.needsUpdate = true;
         }
@@ -336,7 +371,6 @@
             monitorGeom.attributes.color.needsUpdate = true;
         }
 
-        // НОВАЯ ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ FPS
         function updateFPS() {
             framesThisSecond++;
             const now = performance.now();
@@ -347,7 +381,6 @@
                 const fpsElement = document.getElementById('fps-counter');
                 fpsElement.innerText = fps;
                 
-                // Цветовая индикация производительности
                 fpsElement.className = 'stat-value';
                 if (fps < 30) {
                     fpsElement.classList.add('critical');
@@ -363,7 +396,6 @@
         function animate() {
             requestAnimationFrame(animate);
             
-            // ОБНОВЛЯЕМ FPS
             updateFPS();
             
             if (isPlaying) {
