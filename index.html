@@ -12,8 +12,6 @@
         select { background: #000; color: #00ffcc; border: 1px solid #00ffcc; padding: 8px; width: 100%; outline: none; margin-bottom: 5px; cursor: pointer; }
         .btn { background: transparent; border: 1px solid #00ffcc; color: #00ffcc; padding: 8px; cursor: pointer; font-family: inherit; font-size: 10px; width: 100%; margin-top: 5px; }
         .sv-btn { border-color: #ffcc00; color: #ffcc00; }
-        #stats { font-size: 10px; margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; }
-        .val { color: #fff; float: right; }
         #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:2000; letter-spacing:3px; }
         #hud-toggle { position: absolute; bottom: 15px; left: 15px; z-index: 2001; background: #000; color: #ffcc00; border: 1px solid #ffcc00; width: 25px; height: 25px; cursor: pointer; }
 
@@ -31,6 +29,46 @@
         #infoModal b { color: #00ffcc; }
         #closeInfo { cursor: pointer; color: #ff0055; float: right; font-weight: bold; border: 1px solid #ff0055; padding: 2px 8px; font-size: 10px; }
         #closeInfo:hover { background: #ff0055; color: #fff; }
+
+        /* УЛУЧШЕННЫЕ СТИЛИ ДЛЯ СТАТИСТИКИ */
+        #stats {
+            font-size: 11px;
+            margin-top: 20px;
+            border-top: 1px solid #00ffcc33;
+            padding-top: 15px;
+            background: rgba(0, 20, 20, 0.6);
+            border-radius: 4px;
+            padding: 12px;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .stat-label {
+            color: #55aaaa;
+            text-transform: uppercase;
+            font-size: 9px;
+        }
+        .stat-value {
+            color: #00ffcc;
+            font-weight: bold;
+            font-size: 12px;
+            text-shadow: 0 0 8px #00ffcc;
+        }
+        .stat-value.warning {
+            color: #ffaa00;
+            text-shadow: 0 0 8px #ffaa00;
+        }
+        .stat-value.critical {
+            color: #ff5555;
+            text-shadow: 0 0 8px #ff5555;
+        }
+        .stat-divider {
+            margin: 8px 0 5px 0;
+            border-top: 1px dashed #00ffcc33;
+        }
     </style>
 </head>
 <body>
@@ -64,10 +102,27 @@
         <button class="btn sv-btn" style="border-color:#ff00ff; color:#ff00ff;" onclick="applySvisionVideo()">S-VISION VIDEO</button>
         <button class="btn" style="margin-top:5px; border-style:dotted;" onclick="resetMonitor()">ОЧИСТИТЬ ЭКРАН</button>
 
+        <!-- ОБНОВЛЕННЫЙ БЛОК СТАТИСТИКИ -->
         <div id="stats">
-            <div>ВЕРШИН: <span id="count" class="val">0</span></div>
-            <div>РЕЖИМ: <span id="modeDisplay" class="val">READY</span></div>
+            <div class="stat-row">
+                <span class="stat-label">ВЕРШИН</span>
+                <span id="count" class="stat-value">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">FPS</span>
+                <span id="fps-counter" class="stat-value">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">РЕЖИМ</span>
+                <span id="modeDisplay" class="stat-value">READY</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-row">
+                <span class="stat-label">КАДР</span>
+                <span id="frame-counter" class="stat-value">0/0</span>
+            </div>
         </div>
+        
         <button class="btn" onclick="centerView()">CENTER VIEW</button>
         
         <button class="btn" id="infoBtn" style="background: rgba(0,255,204,0.1); margin-top: 15px; border-color: #00ffcc; color: #00ffcc; font-weight: bold;">? ИНФОРМАЦИЯ ДЛЯ ГОСТЯ</button>
@@ -96,6 +151,9 @@
         
         let mainObj = null, animData = null, currentFrame = 0, isPlaying = false, pointsPerFrame = 0, totalFrames = 0;
         let monitorObj = null, monitorGeom = null, videoActive = false, videoElement = null, frameSkipCounter = 0;
+
+        // НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ FPS
+        let fps = 0, lastFpsUpdate = performance.now(), framesThisSecond = 0;
 
         document.getElementById('infoBtn').onclick = () => {
             document.getElementById('infoModal').style.display = 'block';
@@ -153,6 +211,8 @@
                     document.getElementById('anim-panel').style.display = 'none';
                     document.getElementById('modeDisplay').innerText = 'STATIC (SECURE)';
                     renderPoints(floatData);
+                    // ОБНОВЛЯЕМ СЧЕТЧИК КАДРОВ
+                    document.getElementById('frame-counter').innerText = `1/1`;
                 } else {
                     const checkView = new DataView(buffer);
                     const magic = checkView.getUint32(0, true);
@@ -170,6 +230,7 @@
                         pointsPerFrame = floatData.length / 3;
                         animData = floatData; totalFrames = 1;
                         renderPoints(floatData);
+                        document.getElementById('frame-counter').innerText = `1/1`;
                     }
                 }
                 setTimeout(centerView, 100);
@@ -178,20 +239,27 @@
             document.getElementById('loader').style.display = 'none';
         }
 
+        // ИСПРАВЛЕННАЯ ФУНКЦИЯ RENDERPOINTS - ДОБАВЛЕНО ОБНОВЛЕНИЕ СЧЕТЧИКА
         function renderPoints(data) {
             if (mainObj) scene.remove(mainObj);
             const geo = new THREE.BufferGeometry();
             geo.setAttribute('position', new THREE.BufferAttribute(data, 3));
             mainObj = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x00ffcc, size: 2, sizeAttenuation: false }));
             scene.add(mainObj);
+            
+            // ОБНОВЛЯЕМ СЧЕТЧИК ВЕРШИН
+            const vertexCount = data.length / 3;
+            document.getElementById('count').innerText = Math.floor(vertexCount);
         }
 
+        // ИСПРАВЛЕННАЯ ФУНКЦИЯ UPDATEFRAME - ДОБАВЛЕНО ОБНОВЛЕНИЕ СЧЕТЧИКА КАДРОВ
         function updateFrame(f) {
             if (!animData) return;
             const offset = f * pointsPerFrame * 3;
             renderPoints(animData.subarray(offset, offset + pointsPerFrame * 3));
             document.getElementById('timeline').value = f;
             document.getElementById('frameDisplay').innerText = `F: ${f}`;
+            document.getElementById('frame-counter').innerText = `${f}/${totalFrames-1}`;
         }
 
         function centerView() {
@@ -268,8 +336,36 @@
             monitorGeom.attributes.color.needsUpdate = true;
         }
 
+        // НОВАЯ ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ FPS
+        function updateFPS() {
+            framesThisSecond++;
+            const now = performance.now();
+            const delta = now - lastFpsUpdate;
+            
+            if (delta >= 1000) {
+                fps = Math.round((framesThisSecond * 1000) / delta);
+                const fpsElement = document.getElementById('fps-counter');
+                fpsElement.innerText = fps;
+                
+                // Цветовая индикация производительности
+                fpsElement.className = 'stat-value';
+                if (fps < 30) {
+                    fpsElement.classList.add('critical');
+                } else if (fps < 50) {
+                    fpsElement.classList.add('warning');
+                }
+                
+                framesThisSecond = 0;
+                lastFpsUpdate = now;
+            }
+        }
+
         function animate() {
             requestAnimationFrame(animate);
+            
+            // ОБНОВЛЯЕМ FPS
+            updateFPS();
+            
             if (isPlaying) {
                 if (++frameSkipCounter >= 5) {
                     currentFrame = (currentFrame + 1) % totalFrames;
