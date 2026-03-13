@@ -6,21 +6,54 @@
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; color: #00ffcc; }
         
+        /* КОНТЕЙНЕР ДЛЯ КНОПОК УПРАВЛЕНИЯ */
+        .controls-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2001;
+            display: flex;
+            gap: 10px;
+        }
+
+        /* КНОПКИ УПРАВЛЕНИЯ */
+        .control-btn {
+            background: #000;
+            color: #ffcc00;
+            border: 1px solid #ffcc00;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
+        }
+        .control-btn:hover {
+            background: #ffcc00;
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+        }
+
         /* ПРАВАЯ ПАНЕЛЬ СО СКРОЛЛОМ */
         #gideon-ui { 
-            position: absolute; 
-            top: 60px; /* Сдвинули вниз, чтобы освободить место для кнопок */
+            position: fixed; 
+            top: 70px; 
             right: 20px; 
             background: rgba(0, 15, 15, 0.95); 
-            padding: 25px; 
+            padding: 20px; 
             border: 1px solid #00ffcc; 
             z-index: 1000; 
             width: 280px; 
             box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
-            max-height: 80vh; /* Уменьшили высоту */
+            max-height: calc(100vh - 120px);
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: #00ffcc #001111;
+            border-radius: 5px;
         }
 
         /* Стилизация скролла */
@@ -38,24 +71,33 @@
             background: #ffcc00;
         }
 
-        /* ПАНЕЛЬ PLAY - СДВИНУТА ВЛЕВО */
+        /* ПАНЕЛЬ PLAY */
         #anim-panel { 
-            position: absolute; 
-            bottom: 30px; 
-            left: 20px; /* Было 50%, стало 20px - прижали влево */
-            transform: translateX(0); /* Убрали трансформацию */
+            position: fixed; 
+            bottom: 20px; 
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(0, 15, 15, 0.95); 
-            padding: 15px 30px; 
+            padding: 12px 20px; 
             border: 1px solid #00ffcc; 
             display: none; 
             align-items: center; 
-            gap: 20px; 
-            width: 65%; 
-            max-width: 800px;
+            gap: 15px; 
+            width: auto; 
+            min-width: 300px;
+            max-width: 600px;
             z-index: 1000; 
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
         }
         
-        h2 { font-size: 14px; margin: 0 0 15px 0; letter-spacing: 2px; border-bottom: 1px solid #00ffcc33; padding-bottom: 10px; }
+        h2 { 
+            font-size: 14px; 
+            margin: 0 0 15px 0; 
+            letter-spacing: 2px; 
+            border-bottom: 1px solid #00ffcc33; 
+            padding-bottom: 10px; 
+        }
         
         /* СТИЛИ ДЛЯ КАТАЛОГА */
         .catalog-section {
@@ -101,57 +143,130 @@
             background: rgba(50, 30, 0, 0.5);
         }
 
-        .label { font-size: 9px; margin-bottom: 5px; color: #55aaaa; text-transform: uppercase; margin-top: 10px; }
-        select { background: #000; color: #00ffcc; border: 1px solid #00ffcc; padding: 8px; width: 100%; outline: none; margin-bottom: 5px; cursor: pointer; }
-        .btn { background: transparent; border: 1px solid #00ffcc; color: #00ffcc; padding: 8px; cursor: pointer; font-family: inherit; font-size: 10px; width: 100%; margin-top: 5px; transition: all 0.2s; }
-        .btn:hover { background: rgba(0, 255, 204, 0.1); border-color: #ffffff; color: #ffffff; }
-        .sv-btn { border-color: #ffcc00; color: #ffcc00; }
-        .sv-btn:hover { background: rgba(255, 204, 0, 0.1); border-color: #ffffff; color: #ffffff; }
+        .label { 
+            font-size: 9px; 
+            margin-bottom: 5px; 
+            color: #55aaaa; 
+            text-transform: uppercase; 
+            margin-top: 10px; 
+        }
         
-        #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:2000; letter-spacing:3px; }
-
-        /* КНОПКИ УПРАВЛЕНИЯ В ПРАВОМ ВЕРХНЕМ УГЛУ */
-        .control-btn {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 2001;
-            background: #000;
-            color: #ffcc00;
-            border: 1px solid #ffcc00;
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        select { 
+            background: #000; 
+            color: #00ffcc; 
+            border: 1px solid #00ffcc; 
+            padding: 8px; 
+            width: 100%; 
+            outline: none; 
+            margin-bottom: 5px; 
+            cursor: pointer; 
+            border-radius: 3px;
+        }
+        
+        .btn { 
+            background: transparent; 
+            border: 1px solid #00ffcc; 
+            color: #00ffcc; 
+            padding: 8px; 
+            cursor: pointer; 
+            font-family: inherit; 
+            font-size: 10px; 
+            width: 100%; 
+            margin-top: 5px; 
             transition: all 0.2s;
             border-radius: 3px;
         }
-        .control-btn:hover {
-            background: #ffcc00;
-            color: #000;
+        .btn:hover { 
+            background: rgba(0, 255, 204, 0.1); 
+            border-color: #ffffff; 
+            color: #ffffff; 
         }
-        #hud-toggle { right: 60px; } /* Первая кнопка */
-        #panel-toggle { right: 20px; } /* Вторая кнопка */
+        .sv-btn { 
+            border-color: #ffcc00; 
+            color: #ffcc00; 
+        }
+        .sv-btn:hover { 
+            background: rgba(255, 204, 0, 0.1); 
+            border-color: #ffffff; 
+            color: #ffffff; 
+        }
+        
+        #loader { 
+            position: fixed; 
+            top:0; 
+            left:0; 
+            width:100%; 
+            height:100%; 
+            background:rgba(0,0,0,0.95); 
+            display:none; 
+            justify-content:center; 
+            align-items:center; 
+            z-index:2000; 
+            letter-spacing:3px; 
+        }
 
         /* ИНФО МОДАЛ */
         #infoModal {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: rgba(0, 10, 10, 0.98); border: 2px solid #00ffcc;
-            padding: 30px; z-index: 3000; width: 450px; display: none;
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background: rgba(0, 10, 10, 0.98); 
+            border: 2px solid #00ffcc;
+            padding: 30px; 
+            z-index: 3000; 
+            width: 90%;
+            max-width: 450px; 
+            display: none;
             box-shadow: 0 0 50px rgba(0, 255, 204, 0.3);
-            max-height: 85vh; overflow-y: auto;
+            max-height: 85vh; 
+            overflow-y: auto;
+            border-radius: 5px;
         }
-        #infoModal h3 { color: #00ffcc; margin-top: 0; letter-spacing: 2px; border-bottom: 1px solid #00ffcc55; padding-bottom: 10px; font-size: 16px; }
-        #infoModal h4 { color: #ffcc00; margin: 15px 0 5px 0; font-size: 13px; text-transform: uppercase; }
-        #infoModal p { font-size: 13px; line-height: 1.6; color: #aaffff; margin-bottom: 10px; }
+        #infoModal h3 { 
+            color: #00ffcc; 
+            margin-top: 0; 
+            letter-spacing: 2px; 
+            border-bottom: 1px solid #00ffcc55; 
+            padding-bottom: 10px; 
+            font-size: 16px; 
+        }
+        #infoModal h4 { 
+            color: #ffcc00; 
+            margin: 15px 0 5px 0; 
+            font-size: 13px; 
+            text-transform: uppercase; 
+        }
+        #infoModal p { 
+            font-size: 13px; 
+            line-height: 1.6; 
+            color: #aaffff; 
+            margin-bottom: 10px; 
+        }
         #infoModal b { color: #00ffcc; }
-        #infoModal a { color: #ffcc00; text-decoration: none; border-bottom: 1px dashed #ffcc00; }
-        #infoModal a:hover { color: #ffffff; border-bottom: 1px solid #ffffff; }
-        #closeInfo { cursor: pointer; color: #ff0055; float: right; font-weight: bold; border: 1px solid #ff0055; padding: 2px 8px; font-size: 10px; }
-        #closeInfo:hover { background: #ff0055; color: #fff; }
+        #infoModal a { 
+            color: #ffcc00; 
+            text-decoration: none; 
+            border-bottom: 1px dashed #ffcc00; 
+        }
+        #infoModal a:hover { 
+            color: #ffffff; 
+            border-bottom: 1px solid #ffffff; 
+        }
+        #closeInfo { 
+            cursor: pointer; 
+            color: #ff0055; 
+            float: right; 
+            font-weight: bold; 
+            border: 1px solid #ff0055; 
+            padding: 2px 8px; 
+            font-size: 10px; 
+            border-radius: 3px;
+        }
+        #closeInfo:hover { 
+            background: #ff0055; 
+            color: #fff; 
+        }
 
         /* СТАТИСТИКА */
         #stats {
@@ -220,12 +335,52 @@
             display: block;
         }
 
-        /* Адаптация для мобильных */
-        @media (max-width: 1000px) {
+        /* АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ */
+        @media (max-width: 768px) {
+            #gideon-ui {
+                width: 85%;
+                max-width: 280px;
+                right: 10px;
+                top: 60px;
+                max-height: calc(100vh - 80px);
+            }
+            
             #anim-panel {
-                width: 80%;
+                width: 90%;
+                min-width: auto;
+                left: 5%;
+                transform: translateX(0);
+                padding: 10px;
+            }
+            
+            .controls-container {
+                top: 10px;
+                right: 10px;
+            }
+            
+            #infoModal {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #gideon-ui {
+                width: calc(100% - 20px);
+                right: 10px;
                 left: 10px;
-                padding: 10px 15px;
+                top: 60px;
+            }
+            
+            #anim-panel {
+                bottom: 10px;
+                padding: 8px;
+            }
+            
+            .control-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
             }
         }
     </style>
@@ -234,9 +389,11 @@
 
     <div id="loader">GIDEON: ЗАГРУЗКА МОДЕЛИ...</div>
 
-    <!-- ДВЕ КНОПКИ УПРАВЛЕНИЯ В ПРАВОМ ВЕРХНЕМ УГЛУ -->
-    <button id="hud-toggle" class="control-btn" onclick="toggleHUD()" data-tooltip="Скрыть/показать S-Vision HUD">_</button>
-    <button id="panel-toggle" class="control-btn" onclick="togglePanel()" data-tooltip="Скрыть/показать правую панель">≡</button>
+    <!-- КОНТЕЙНЕР С КНОПКАМИ УПРАВЛЕНИЯ -->
+    <div class="controls-container">
+        <button id="hud-toggle" class="control-btn" onclick="toggleHUD()" data-tooltip="Скрыть/показать S-Vision HUD">_</button>
+        <button id="panel-toggle" class="control-btn" onclick="togglePanel()" data-tooltip="Скрыть/показать правую панель">≡</button>
+    </div>
 
     <!-- ИНФОРМАЦИОННЫЙ МОДАЛ -->
     <div id="infoModal">
@@ -352,7 +509,7 @@
     </div>
 
     <div id="anim-panel">
-        <button id="playBtn" style="background:transparent; border:1px solid #00ffcc; color:#00ffcc; width:80px; cursor:pointer;">PLAY</button>
+        <button id="playBtn" style="background:transparent; border:1px solid #00ffcc; color:#00ffcc; width:80px; cursor:pointer; border-radius:3px;">PLAY</button>
         <input type="range" id="timeline" min="0" value="0" style="flex:1; accent-color:#00ffcc;">
         <div id="frameDisplay" style="font-size: 12px; min-width: 60px; text-align: right;">F: 0</div>
     </div>
