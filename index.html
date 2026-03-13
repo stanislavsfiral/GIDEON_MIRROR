@@ -5,8 +5,54 @@
     <title>GIDEON: Лаборатория форм Сфираль</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; color: #00ffcc; }
-        #gideon-ui { position: absolute; top: 20px; right: 20px; background: rgba(0, 15, 15, 0.95); padding: 25px; border: 1px solid #00ffcc; z-index: 1000; width: 280px; box-shadow: 0 0 20px rgba(0, 255, 204, 0.2); }
-        #anim-panel { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0, 15, 15, 0.95); padding: 15px 30px; border: 1px solid #00ffcc; display: none; align-items: center; gap: 20px; width: 65%; z-index: 1000; }
+        
+        /* ИСПРАВЛЕННАЯ ПРАВАЯ ПАНЕЛЬ СО СКРОЛЛОМ */
+        #gideon-ui { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            background: rgba(0, 15, 15, 0.95); 
+            padding: 25px; 
+            border: 1px solid #00ffcc; 
+            z-index: 1000; 
+            width: 280px; 
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #00ffcc #001111;
+        }
+
+        /* Стилизация скролла для Chrome/Safari */
+        #gideon-ui::-webkit-scrollbar {
+            width: 6px;
+        }
+        #gideon-ui::-webkit-scrollbar-track {
+            background: #001111;
+        }
+        #gideon-ui::-webkit-scrollbar-thumb {
+            background: #00ffcc;
+            border-radius: 3px;
+        }
+        #gideon-ui::-webkit-scrollbar-thumb:hover {
+            background: #ffcc00;
+        }
+
+        #anim-panel { 
+            position: absolute; 
+            bottom: 30px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background: rgba(0, 15, 15, 0.95); 
+            padding: 15px 30px; 
+            border: 1px solid #00ffcc; 
+            display: none; 
+            align-items: center; 
+            gap: 20px; 
+            width: 65%; 
+            z-index: 1000; 
+        }
+        
         h2 { font-size: 14px; margin: 0 0 15px 0; letter-spacing: 2px; border-bottom: 1px solid #00ffcc33; padding-bottom: 10px; }
         
         /* СТИЛИ ДЛЯ КАТАЛОГА */
@@ -61,7 +107,30 @@
         .sv-btn:hover { background: rgba(255, 204, 0, 0.1); border-color: #ffffff; color: #ffffff; }
         
         #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:2000; letter-spacing:3px; }
-        #hud-toggle { position: absolute; bottom: 15px; left: 15px; z-index: 2001; background: #000; color: #ffcc00; border: 1px solid #ffcc00; width: 25px; height: 25px; cursor: pointer; }
+
+        /* ДВЕ КНОПКИ УПРАВЛЕНИЯ */
+        .control-btn {
+            position: absolute;
+            bottom: 15px;
+            z-index: 2001;
+            background: #000;
+            color: #ffcc00;
+            border: 1px solid #ffcc00;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .control-btn:hover {
+            background: #ffcc00;
+            color: #000;
+        }
+        #hud-toggle { left: 15px; }
+        #panel-toggle { left: 50px; }
 
         /* ИНФО МОДАЛ */
         #infoModal {
@@ -151,7 +220,10 @@
 <body>
 
     <div id="loader">GIDEON: ЗАГРУЗКА МОДЕЛИ...</div>
-    <button id="hud-toggle" data-tooltip="Скрыть/показать панель">_</button>
+
+    <!-- ДВЕ КНОПКИ УПРАВЛЕНИЯ -->
+    <button id="hud-toggle" class="control-btn" onclick="toggleHUD()" data-tooltip="Скрыть/показать S-Vision HUD">_</button>
+    <button id="panel-toggle" class="control-btn" onclick="togglePanel()" data-tooltip="Скрыть/показать правую панель">≡</button>
 
     <!-- ИНФОРМАЦИОННЫЙ МОДАЛ -->
     <div id="infoModal">
@@ -469,7 +541,21 @@
             monitorObj.visible = false;
         }
 
-        function toggleHUD() { if(monitorObj) monitorObj.visible = !monitorObj.visible; }
+        // ИСПРАВЛЕННАЯ ФУНКЦИЯ ДЛЯ S-VISION HUD
+        function toggleHUD() { 
+            if (monitorObj) {
+                monitorObj.visible = !monitorObj.visible; 
+                console.log("S-Vision HUD:", monitorObj.visible ? "показан" : "скрыт");
+            }
+        }
+
+        // НОВАЯ ФУНКЦИЯ ДЛЯ ПРАВОЙ ПАНЕЛИ
+        function togglePanel() {
+            const panel = document.getElementById('gideon-ui');
+            if (panel) {
+                panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            }
+        }
 
         // S-VISION функции
         const canvasSV = document.createElement('canvas'); canvasSV.width = 256; canvasSV.height = 256;
@@ -539,7 +625,8 @@
             updateFPS();
             
             if (isPlaying) {
-                if (++frameSkipCounter >= 5) {
+                // УВЕЛИЧЕНО С 5 ДО 30 - В 6 РАЗ МЕДЛЕННЕЕ
+                if (++frameSkipCounter >= 30) {
                     currentFrame = (currentFrame + 1) % totalFrames;
                     updateFrame(currentFrame);
                     frameSkipCounter = 0;
