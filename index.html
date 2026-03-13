@@ -6,7 +6,32 @@
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; color: #00ffcc; }
         #gideon-ui { position: absolute; top: 20px; right: 20px; background: rgba(0, 15, 15, 0.95); padding: 25px; border: 1px solid #00ffcc; z-index: 1000; width: 280px; box-shadow: 0 0 20px rgba(0, 255, 204, 0.2); }
-        #anim-panel { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0, 15, 15, 0.95); padding: 15px 30px; border: 1px solid #00ffcc; display: none; align-items: center; gap: 20px; width: 65%; z-index: 1000; }
+        
+        /* ИСПРАВЛЕННАЯ ПАНЕЛЬ PLAY */
+        #anim-panel { 
+            position: absolute; 
+            bottom: 30px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background: rgba(0, 15, 15, 0.95); 
+            padding: 15px 30px; 
+            border: 1px solid #00ffcc; 
+            display: none; 
+            align-items: center; 
+            gap: 20px; 
+            width: 65%; 
+            max-width: 800px;
+            z-index: 500; 
+        }
+
+        /* АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ */
+        @media (max-width: 1000px) {
+            #anim-panel {
+                width: 80%;
+                padding: 10px 15px;
+            }
+        }
+
         h2 { font-size: 14px; margin: 0 0 15px 0; letter-spacing: 2px; border-bottom: 1px solid #00ffcc33; padding-bottom: 10px; }
         
         /* СТИЛИ ДЛЯ КАТАЛОГА */
@@ -405,26 +430,14 @@
         }
 
         async function init() {
-            await loadFolder('static', 'staticSelector');
-            await loadFolder('dynamic', 'dynamicSelector');
+            // УДАЛЕНЫ ПРОБЛЕМНЫЕ СТРОКИ
             createHUD();
             animate();
         }
 
+        // Функция loadFolder больше не используется
         async function loadFolder(folder, selectId) {
-            try {
-                const res = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/models/${folder}`);
-                const files = await res.json();
-                const select = document.getElementById(selectId);
-                select.innerHTML = `<option value="">-- ${folder.toUpperCase()} --</option>`;
-                if (files && Array.isArray(files)) {
-                    files.filter(f => f.name.endsWith('.npy')).forEach(f => {
-                        const opt = document.createElement('option');
-                        opt.value = f.name; opt.text = f.name.toUpperCase();
-                        select.appendChild(opt);
-                    });
-                }
-            } catch(e) { console.error("Folder Load Error:", e); }
+            // Пустая функция для совместимости
         }
 
         async function switchModel(type, fileName) {
@@ -646,7 +659,8 @@
             updateFPS();
             
             if (isPlaying) {
-                if (++frameSkipCounter >= 5) {
+                // УВЕЛИЧИВАЕМ С 5 ДО 50 - В 10 РАЗ МЕДЛЕННЕЕ
+                if (++frameSkipCounter >= 50) {
                     currentFrame = (currentFrame + 1) % totalFrames;
                     updateFrame(currentFrame);
                     frameSkipCounter = 0;
