@@ -9,7 +9,7 @@
         #anim-panel { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0, 15, 15, 0.95); padding: 15px 30px; border: 1px solid #00ffcc; display: none; align-items: center; gap: 20px; width: 65%; z-index: 1000; }
         h2 { font-size: 14px; margin: 0 0 15px 0; letter-spacing: 2px; border-bottom: 1px solid #00ffcc33; padding-bottom: 10px; }
         
-        /* НОВЫЕ СТИЛИ ДЛЯ КАТАЛОГА */
+        /* СТИЛИ ДЛЯ КАТАЛОГА */
         .catalog-section {
             margin-bottom: 15px;
             border-left: 2px solid #00ffcc33;
@@ -164,14 +164,14 @@
         <p>Два зеркально-антисимметричных витка (левый и правый), соединенных S-образным переходом. Правый виток развернут на 180° для идеальной стыковки.</p>
         
         <h4>🔄 Диполь</h4>
-        <p>Две сфирали, вложенные друг в друга. Вторая развернута на 180° по оси Y, создавая замкнутый цикл: конец первой встречает начало второй. <b>Нажмите кнопку [🔴🔵 ПОКАЗАТЬ ДИПОЛЬ]</b>, чтобы увидеть это.</p>
+        <p>Две сфирали, вложенные друг в друга. Вторая развернута на 180° по осям X и Y, создавая замкнутый цикл. <b>Нажмите кнопку [🔴🔵 ПОКАЗАТЬ ДИПОЛЬ]</b>, чтобы увидеть это.</p>
         
         <h4>📊 Иерархия моделей</h4>
         <p>• <b>⚪ Сфираль</b> — базовый кирпичик<br>
            • <b>🔄 Диполь</b> — две сфирали (одна перевернута)<br>
-           • <b>⛓️ Цепочки</b> — из 2, 4, 8 диполей<br>
-           • <b>🌪️ Вихри</b> — диполи, повернутые на угол (360°/n)<br>
-           • <b>🌸 Цветок жизни</b> — отдельное направление</p>
+           • <b>⛓️ Цепочки</b> — сфирали, соединенные последовательно (с витками или без)<br>
+           • <b>💫 Кольца</b> — замкнутые структуры<br>
+           • <b>💎 Ядра</b> — особые модели GIDEON</p>
         
         <h4>⚡ Принцип "Геометрия как индекс"</h4>
         <p>Каждая точка модели — это одновременно координата и адрес данных. S-VISION показывает, как фото (300K точек) или видео (1.5M точек) "раскладывается" по точкам структуры.</p>
@@ -187,52 +187,57 @@
     <div id="gideon-ui">
         <h2>GIDEON CORE V3.9.9.9.5</h2>
         
-        <!-- НОВЫЙ КАТАЛОГ МОДЕЛЕЙ -->
+        <!-- КАТАЛОГ МОДЕЛЕЙ С РЕАЛЬНЫМИ ИМЕНАМИ ФАЙЛОВ -->
         <div class="catalog-section">
-            <div class="catalog-title" onclick="toggleCatalog('basic')">⚪ УРОВЕНЬ 1 — Базовые элементы ▼</div>
+            <div class="catalog-title" onclick="toggleCatalog('basic')">⚪ УРОВЕНЬ 1 — Сфирали ▼</div>
             <div id="basic-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'sfiral.npy')" data-tooltip="Одиночная сфираль">Сфираль</button>
+                <button class="model-btn" onclick="loadModel('static', 'sfiral_base.npy')" data-tooltip="Одиночная сфираль (базовый элемент)">Сфираль</button>
             </div>
         </div>
 
         <div class="catalog-section">
             <div class="catalog-title" onclick="toggleCatalog('dipole')">🔄 УРОВЕНЬ 2 — Диполи ▼</div>
             <div id="dipole-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'dipole.npy')" data-tooltip="Две сфирали, одна перевернута на 180° по Y">Диполь</button>
+                <button class="model-btn" onclick="loadModel('static', 'sfiral_dipole.npy')" data-tooltip="Две сфирали: вторая развернута на 180° по X и Y">Диполь</button>
             </div>
         </div>
 
         <div class="catalog-section">
-            <div class="catalog-title" onclick="toggleCatalog('chains')">⛓️ УРОВЕНЬ 3 — Цепочки ▼</div>
+            <div class="catalog-title" onclick="toggleCatalog('chains')">⛓️ УРОВЕНЬ 3 — Цепочки (с витками) ▼</div>
             <div id="chains-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'chain2.npy')" data-tooltip="2 диполя (4 сфирали)">Цепочка 2</button>
-                <button class="model-btn" onclick="loadModel('static', 'chain4.npy')" data-tooltip="4 диполя (8 сфиралей)">Цепочка 4</button>
-                <button class="model-btn" onclick="loadModel('static', 'chain8.npy')" data-tooltip="8 диполей (16 сфиралей)">Цепочка 8</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_v2.npy')" data-tooltip="2 сфирали, соединенные с витками">Цепочка 2</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_v4.npy')" data-tooltip="4 сфирали, соединенные с витками">Цепочка 4</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_v8.npy')" data-tooltip="8 сфиралей, соединенные с витками">Цепочка 8</button>
             </div>
         </div>
 
         <div class="catalog-section">
-            <div class="catalog-title" onclick="toggleCatalog('vortex')">🌪️ УРОВЕНЬ 4 — Вихри ▼</div>
-            <div id="vortex-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'vortex36.npy')" data-tooltip="Диполь, повернутый на 36°">36°</button>
-                <button class="model-btn" onclick="loadModel('static', 'vortex45.npy')" data-tooltip="Диполь, повернутый на 45°">45°</button>
-                <button class="model-btn" onclick="loadModel('static', 'vortex60.npy')" data-tooltip="Диполь, повернутый на 60°">60°</button>
-                <button class="model-btn" onclick="loadModel('static', 'vortex72.npy')" data-tooltip="Диполь, повернутый на 72°">72°</button>
-                <button class="model-btn" onclick="loadModel('static', 'vortex90.npy')" data-tooltip="Диполь, повернутый на 90°">90°</button>
-                <button class="model-btn" onclick="loadModel('static', 'vortex120.npy')" data-tooltip="Диполь, повернутый на 120°">120°</button>
-                <button class="model-btn" onclick="loadModel('static', 'vortex180.npy')" data-tooltip="Диполь, повернутый на 180°">180°</button>
+            <div class="catalog-title" onclick="toggleCatalog('chains_opt')">⚡ УРОВЕНЬ 3 — Цепочки (без витков) ▼</div>
+            <div id="chains_opt-models" class="catalog-items">
+                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x2.npy')" data-tooltip="2 сфирали, соединенные напрямую">Цепочка 2 opt</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x4.npy')" data-tooltip="4 сфирали, соединенные напрямую">Цепочка 4 opt</button>
+                <button class="model-btn" onclick="loadModel('static', 'chain_opt_x8.npy')" data-tooltip="8 сфиралей, соединенные напрямую">Цепочка 8 opt</button>
             </div>
         </div>
 
         <div class="catalog-section">
-            <div class="catalog-title" onclick="toggleCatalog('flower')">🌸 УРОВЕНЬ 5 — Цветок жизни ▼</div>
-            <div id="flower-models" class="catalog-items">
-                <button class="model-btn" onclick="loadModel('static', 'flower1.npy')" data-tooltip="Цветок жизни версия 1">Версия 1</button>
-                <button class="model-btn" onclick="loadModel('static', 'flower2.npy')" data-tooltip="Цветок жизни версия 2">Версия 2</button>
+            <div class="catalog-title" onclick="toggleCatalog('rings')">💫 УРОВЕНЬ 4 — Кольца ▼</div>
+            <div id="rings-models" class="catalog-items">
+                <button class="model-btn" onclick="loadModel('static', 'ring_opt_x8.npy')" data-tooltip="Кольцо из 8 сфиралей">Кольцо 8</button>
+                <button class="model-btn" onclick="loadModel('static', 'ring_chain_v8.npy')" data-tooltip="Кольцо-цепочка">Кольцо-цепочка</button>
             </div>
         </div>
 
-        <!-- ДИНАМИКА (ОСТАВЛЯЕМ КАК ЕСТЬ) -->
+        <div class="catalog-section">
+            <div class="catalog-title" onclick="toggleCatalog('core')">💎 ОСОБЫЕ МОДЕЛИ ▼</div>
+            <div id="core-models" class="catalog-items">
+                <button class="model-btn" onclick="loadModel('static', 'gideon_core.npy')" data-tooltip="Ядро GIDEON">Ядро</button>
+                <button class="model-btn" onclick="loadModel('static', 'gideon_core_13.npy')" data-tooltip="Ядро GIDEON v13">Ядро v13</button>
+                <button class="model-btn" onclick="loadModel('static', 'apple_double.npy')" data-tooltip="Экспериментальная модель">Apple Double</button>
+            </div>
+        </div>
+
+        <!-- ДИНАМИКА -->
         <div class="label">Динамика (ORIGINAL):</div>
         <select id="dynamicSelector" onchange="switchModel('dynamic', this.value)"></select>
         
@@ -242,7 +247,7 @@
         <button class="btn sv-btn" style="border-color:#ff00ff; color:#ff00ff;" onclick="applySvisionVideo()" data-tooltip="Разложить видео (1.5M точек) по модели">🎬 ВИДЕО</button>
         <button class="btn" style="margin-top:5px; border-style:dotted;" onclick="resetMonitor()" data-tooltip="Очистить проекцию">ОЧИСТИТЬ ЭКРАН</button>
 
-        <!-- НОВАЯ КНОПКА ПОДСВЕТКИ ДИПОЛЯ -->
+        <!-- КНОПКА ПОДСВЕТКИ ДИПОЛЯ -->
         <button class="btn" id="dipoleHighlightBtn" onclick="toggleDipoleHighlight()" style="background: rgba(255,0,0,0.1); border-color: #ff4444; color: #ff8888; margin-top: 10px;">
             🔴🔵 ПОКАЗАТЬ ДИПОЛЬ
         </button>
@@ -312,16 +317,15 @@
             }
         }
 
-        // ФУНКЦИЯ ЗАГРУЗКИ МОДЕЛИ (ОБОЛОЧКА ДЛЯ SWITCHMODEL)
+        // ФУНКЦИЯ ЗАГРУЗКИ МОДЕЛИ
         function loadModel(type, fileName) {
             switchModel(type, fileName);
-            // Сбрасываем подсветку
             if (highlightMode) {
                 toggleDipoleHighlight();
             }
         }
 
-        // НОВАЯ ФУНКЦИЯ ПОДСВЕТКИ ДИПОЛЯ
+        // ФУНКЦИЯ ПОДСВЕТКИ ДИПОЛЯ
         function toggleDipoleHighlight() {
             if (!mainObj) return;
             
@@ -329,14 +333,11 @@
             const btn = document.getElementById('dipoleHighlightBtn');
             
             if (highlightMode) {
-                // Сохраняем оригинальные цвета
                 const positionAttr = mainObj.geometry.attributes.position;
                 const count = positionAttr.count;
                 
-                // Создаем атрибут цвета, если его нет
                 if (!mainObj.geometry.attributes.color) {
                     const colors = new Float32Array(count * 3);
-                    // Заполняем серым по умолчанию
                     for (let i = 0; i < count; i++) {
                         colors[i*3] = 0.5;
                         colors[i*3+1] = 0.5;
@@ -347,18 +348,15 @@
                 
                 originalColors = mainObj.geometry.attributes.color.array.slice();
                 
-                // Красим: первую половину точек в красный, вторую в синий
                 const colors = mainObj.geometry.attributes.color.array;
                 const half = Math.floor(count / 2);
                 
                 for (let i = 0; i < count; i++) {
                     if (i < half) {
-                        // Первая сфираль - красный
                         colors[i*3] = 1.0;
                         colors[i*3+1] = 0.2;
                         colors[i*3+2] = 0.2;
                     } else {
-                        // Вторая сфираль (перевернутая) - синий
                         colors[i*3] = 0.2;
                         colors[i*3+1] = 0.4;
                         colors[i*3+2] = 1.0;
@@ -372,7 +370,6 @@
                 btn.style.borderColor = '#ffaa00';
                 btn.innerHTML = '🔴🔵 СБРОСИТЬ ЦВЕТ';
             } else {
-                // Возвращаем оригинальные цвета
                 if (originalColors && mainObj.geometry.attributes.color) {
                     const colors = mainObj.geometry.attributes.color.array;
                     for (let i = 0; i < colors.length; i++) {
@@ -380,7 +377,6 @@
                     }
                     mainObj.geometry.attributes.color.needsUpdate = true;
                 } else {
-                    // Если не было цвета, отключаем vertexColors
                     mainObj.material.vertexColors = false;
                 }
                 btn.style.background = 'rgba(255,0,0,0.1)';
@@ -436,7 +432,6 @@
             document.getElementById('loader').style.display = 'flex';
             isPlaying = false;
             
-            // Сбрасываем подсветку
             if (highlightMode) {
                 toggleDipoleHighlight();
             }
@@ -467,7 +462,7 @@
                 } else {
                     const checkView = new DataView(buffer);
                     const magic = checkView.getUint32(0, true);
-                    if (magic === 0x4E594447) { // "GDYN"
+                    if (magic === 0x4E594447) {
                         totalFrames = checkView.getUint32(4, true);
                         pointsPerFrame = checkView.getUint32(8, true);
                         floatData = new Float32Array(buffer.slice(12));
@@ -514,7 +509,6 @@
             const geo = new THREE.BufferGeometry();
             geo.setAttribute('position', new THREE.BufferAttribute(data, 3));
             
-            // Добавляем базовый цвет (серый)
             const colors = new Float32Array(data.length);
             for (let i = 0; i < data.length/3; i++) {
                 colors[i*3] = 0.5;
@@ -536,7 +530,6 @@
             const vertexCount = data.length / 3;
             document.getElementById('count').innerText = Math.floor(vertexCount);
             
-            // Сбрасываем состояние подсветки
             highlightMode = false;
             const btn = document.getElementById('dipoleHighlightBtn');
             btn.style.background = 'rgba(255,0,0,0.1)';
