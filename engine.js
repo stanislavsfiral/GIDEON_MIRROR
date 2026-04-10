@@ -9,7 +9,7 @@ window.gVideo = null;
 window.GIDEON_AXIS = 'Y';
 window.GIDEON_COUNT = 12;
 
-// --- ИНИЦИАЛИЗАЦИЯ АНАЛИТИКИ (из v55.8) ---
+// --- ИНИЦИАЛИЗАЦИЯ АНАЛИТИКИ ---
 let telemetryStream = null;
 function initAnalyticsSystem() {
     const led = document.getElementById('sys-led');
@@ -29,7 +29,7 @@ function generateSfiralCore() {
     for (let i = 0; i < totalPoints; i++) {
         const t = (i / totalPoints);
         const angle = t * Math.PI * 40;
-        const radius = Math.exp(t * 2.5) * 1.5; // Экспоненциальный рост как в GIDEON
+        const radius = Math.exp(t * 2.5) * 1.5; 
         const segment = Math.floor(t * 4);
         let x, y, z;
 
@@ -81,19 +81,20 @@ function build3DCore() {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(masterData.data, 3));
 
-    // ШЕЙДЕРЫ ИЗ v55.8 (с улучшенным свечением)
     const material = new THREE.ShaderMaterial({
         uniforms: {
             uTime: { value: 0 },
             uCharge: { value: 0 }
         },
         vertexShader: `
+            uniform float uTime;
+            uniform float uCharge;
             varying vec3 vPos;
             void main() {
                 vPos = position;
                 vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
                 gl_Position = projectionMatrix * mvPosition;
-                // Размер точки зависит от глубины и заряда
+                // Размер точки теперь корректно зависит от uCharge и глубины
                 gl_PointSize = (2.8 + uCharge * 2.0) * (200.0 / -mvPosition.z);
             }
         `,
@@ -102,11 +103,9 @@ function build3DCore() {
             uniform float uCharge;
             varying vec3 vPos;
             void main() {
-                // Эффект пульсации диполей
                 float pulse = sin(vPos.z * 0.08 - uTime * 3.0) * 0.5 + 0.5;
                 vec3 cyan = vec3(0.0, 1.0, 0.8);
                 vec3 magenta = vec3(1.0, 0.0, 1.0);
-                // Смена цвета при росте резонанса
                 vec3 color = mix(cyan, magenta, uCharge * 0.5);
                 gl_FragColor = vec4(color * pulse, 0.7);
             }
@@ -130,7 +129,6 @@ function animate() {
     frameCounter++;
 
     if (window.gVideo && window.gVideo.readyState === 4) {
-        // Оптимизация: берем данные из видео каждые 2 кадра
         if (frameCounter % 2 === 0) {
             vCtx.drawImage(window.gVideo, 0, 0, 16, 16);
             const pixel = vCtx.getImageData(8, 8, 1, 1).data;
@@ -138,7 +136,6 @@ function animate() {
             smoothResonance = (smoothResonance * 0.9) + (bright * 0.1);
         }
 
-        // Обновление UI
         const cohVal = document.getElementById('coh-val');
         if (cohVal) cohVal.innerText = smoothResonance.toFixed(4);
         
@@ -150,7 +147,6 @@ function animate() {
             child.material.uniforms.uCharge.value = smoothResonance;
         });
 
-        // Телеметрия (каждые 6 кадров)
         if (frameCounter % 6 === 0 && telemetryStream && telemetryStream.readyState === 1) {
             telemetryStream.send(JSON.stringify({ telemetry: [smoothResonance] }));
         }
@@ -167,7 +163,7 @@ loadProtectedCore().then(() => {
     animate();
 });
 
-window.rebuildCore = build3DCore; // Для управления из UI
+window.rebuildCore = build3DCore;
 
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
