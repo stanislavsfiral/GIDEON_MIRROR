@@ -16,45 +16,60 @@ function initAnalyticsSystem() {
     telemetryStream = new WebSocket('ws://127.0.0.1:8765');
     telemetryStream.onopen = () => {
         if (led) { led.style.background = "#00ffcc"; led.style.boxShadow = "0 0 15px #00ffcc"; }
-        console.log("%c[GIDEON AI] Связь установлена. Режим Nexus активен", "color: #00ffcc; font-weight: bold;");
+        console.log("%c[MASTER CORE] Связь с трансивером установлена", "color: #00ffcc; font-weight: bold;");
     };
 }
 
-// --- ГЕНЕРАЦИЯ ЯДРА (Твоя формула 4-х сегментов) ---
-function generateSfiralCore() {
+// --- СТРОГАЯ ЛОГИКА ПОСТРОЕНИЯ MASTER MODEL (4 сегмента) ---
+function generateMasterSfiral() {
     const points = [];
-    const totalPoints = 12000;
+    const totalPoints = 8000; // Плотность эталонной модели
     const resonanceStep = 372.72;
 
     for (let i = 0; i < totalPoints; i++) {
-        const t = (i / totalPoints);
-        const angle = t * Math.PI * 40;
-        const radius = Math.exp(t * 2.5) * 1.5; 
-        const segment = Math.floor(t * 4);
+        const t = i / totalPoints; // Прогресс от 0 до 1
+        const angle = t * Math.PI * 30;
+        const radius = Math.exp(t * 2.2) * 1.8; // Экспонента для формы "ракушки"
+        
         let x, y, z;
 
-        if (segment === 0) { // Левый виток
+        // 1. ЛЕВЫЙ ВИТОК (0% - 25%)
+        if (t < 0.25) {
             x = Math.cos(angle) * radius;
             y = Math.sin(angle) * radius;
-            z = i * 0.004;
-        } else if (segment === 1 || segment === 2) { // S-переходы
-            const sMod = Math.sin(angle * 0.2) * resonanceStep * 0.01;
-            x = Math.cos(angle) * radius * (1.1 + Math.sin(t * Math.PI));
+            z = t * 30;
+        } 
+        // 2. S-ПЕРЕХОД ЧАСТЬ А (25% - 50%)
+        else if (t < 0.50) {
+            const localT = (t - 0.25) / 0.25;
+            const phaseShift = Math.sin(localT * Math.PI) * 2.0;
+            x = Math.cos(angle) * radius * Math.cos(localT * Math.PI * 0.2);
             y = Math.sin(angle) * radius;
-            z = (i * 0.004) + sMod;
-        } else { // Правый виток (инверсия)
+            z = t * 30 + phaseShift;
+        }
+        // 3. S-ПЕРЕХОД ЧАСТЬ Б (50% - 75%)
+        else if (t < 0.75) {
+            const localT = (t - 0.50) / 0.25;
+            const phaseShift = Math.cos(localT * Math.PI) * 2.0;
+            x = Math.cos(angle + Math.PI) * radius * Math.sin(localT * Math.PI * 0.2);
+            y = Math.sin(angle) * radius;
+            z = t * 30 + phaseShift;
+        }
+        // 4. ПРАВЫЙ ВИТОК (75% - 100%) - Инверсия хиральности
+        else {
             x = Math.cos(-angle) * radius;
             y = Math.sin(-angle) * radius;
-            z = i * 0.004;
+            z = t * 30;
         }
+
         points.push(x, y, z);
     }
     return { data: new Float32Array(points), shape: [totalPoints, 3] };
 }
 
 async function loadProtectedCore() {
-    console.log("⚡ Синтез матрицы...");
-    masterData = generateSfiralCore();
+    console.log("⚡ Синтез эталонной модели Master...");
+    masterData = generateMasterSfiral();
 }
 
 function init3D() {
@@ -66,7 +81,7 @@ function init3D() {
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    camera.position.set(100, 100, 250);
+    camera.position.set(120, 120, 300);
     scene.add(currentGroup);
 
     vCanvas = document.createElement('canvas');
@@ -94,8 +109,7 @@ function build3DCore() {
                 vPos = position;
                 vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
                 gl_Position = projectionMatrix * mvPosition;
-                // Размер точки теперь корректно зависит от uCharge и глубины
-                gl_PointSize = (2.8 + uCharge * 2.0) * (200.0 / -mvPosition.z);
+                gl_PointSize = (2.5 + uCharge * 3.0) * (250.0 / -mvPosition.z);
             }
         `,
         fragmentShader: `
@@ -103,10 +117,10 @@ function build3DCore() {
             uniform float uCharge;
             varying vec3 vPos;
             void main() {
-                float pulse = sin(vPos.z * 0.08 - uTime * 3.0) * 0.5 + 0.5;
+                float pulse = sin(vPos.z * 0.1 - uTime * 4.0) * 0.5 + 0.5;
                 vec3 cyan = vec3(0.0, 1.0, 0.8);
-                vec3 magenta = vec3(1.0, 0.0, 1.0);
-                vec3 color = mix(cyan, magenta, uCharge * 0.5);
+                vec3 magnet = vec3(0.7, 0.0, 1.0);
+                vec3 color = mix(cyan, magnet, uCharge);
                 gl_FragColor = vec4(color * pulse, 0.7);
             }
         `,
@@ -147,13 +161,13 @@ function animate() {
             child.material.uniforms.uCharge.value = smoothResonance;
         });
 
-        if (frameCounter % 6 === 0 && telemetryStream && telemetryStream.readyState === 1) {
+        if (frameCounter % 6 === 0 && telemetryStream && telemetryStream.readyState === WebSocket.OPEN) {
             telemetryStream.send(JSON.stringify({ telemetry: [smoothResonance] }));
         }
     }
 
     controls.update();
-    currentGroup.rotation.y += 0.0015;
+    currentGroup.rotation.y += 0.001;
     renderer.render(scene, camera);
 }
 
