@@ -37,37 +37,13 @@ function createSfiral(data, ry, rx, rz) {
         const end = (s + 1) * 66 * 3;
         geo.setAttribute('position', new THREE.BufferAttribute(data.slice(start, end), 3));
         
-        const mat = new THREE.ShaderMaterial({
-            uniforms: { 
-                uTime: { value: 0 }, 
-                uCharge: { value: 0.5 }, 
-                uColor: { value: new THREE.Color(colors[s]) } 
-            },
-            vertexShader: `
-                uniform float uCharge;
-                varying vec3 vPos;
-                void main() {
-                    vPos = position;
-                    vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
-                    gl_Position = projectionMatrix * mvPos;
-                    
-                    // Улучшенная логика: базовый размер 4.0 + зависимость от заряда.
-                    // Множитель 450.0 делает облако более плотным.
-                    float pSize = (4.0 + uCharge * 6.0) * (450.0 / -mvPos.z);
-                    
-                    // Жесткое ограничение снизу, чтобы точки не исчезали в черноте
-                    gl_PointSize = max(pSize, 2.5);
-                }
-            `,
-            fragmentShader: `
-                uniform vec3 uColor;
-                uniform float uCharge;
-                void main() {
-                    float br = 0.4 + uCharge * 0.6;
-                    gl_FragColor = vec4(uColor * br, 0.9);
-                }
-            `,
-            transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
+        const mat = new THREE.PointsMaterial({
+            color: colors[s],
+            size: 3.5,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending,
+            sizeAttenuation: true
         });
         group.add(new THREE.Points(geo, mat));
     }
@@ -89,7 +65,7 @@ function build3DCore() {
 function init3D() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 10000);
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
     
@@ -99,6 +75,7 @@ function init3D() {
     
     vCanvas = document.createElement('canvas');
     vCanvas.width = 16; vCanvas.height = 16;
+    // Оптимизация чтения пикселей:
     vCtx = vCanvas.getContext('2d', { willReadFrequently: true });
 }
 
@@ -116,14 +93,6 @@ function animate() {
         if(chg) chg.innerText = Math.round(smoothResonance * 100) + "%";
         if(bar) bar.style.width = (smoothResonance * 100) + "%";
     }
-
-    currentGroup.children.forEach(dipole => {
-        dipole.children.forEach(sfiral => {
-            sfiral.children.forEach(segment => {
-                segment.material.uniforms.uCharge.value = smoothResonance;
-            });
-        });
-    });
 
     currentGroup.rotation.y += 0.002;
     controls.update();
