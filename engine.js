@@ -1,93 +1,4 @@
-const npyLoader = new npyjs();
-let scene, camera, renderer, controls, masterData;
-let currentGroup = new THREE.Group();
-let vCanvas, vCtx;
-let smoothResonance = 0;
-let frameCounter = 0;
-
-window.gVideo = null;
-window.GIDEON_AXIS = 'Y';
-window.GIDEON_COUNT = 12;
-
-// --- ИНИЦИАЛИЗАЦИЯ АНАЛИТИКИ ---
-let telemetryStream = null;
-function initAnalyticsSystem() {
-    const led = document.getElementById('sys-led');
-    telemetryStream = new WebSocket('ws://127.0.0.1:8765');
-    telemetryStream.onopen = () => {
-        if (led) { led.style.background = "#00ffcc"; led.style.boxShadow = "0 0 15px #00ffcc"; }
-        console.log("%c[MASTER CORE] Связь с трансивером установлена", "color: #00ffcc; font-weight: bold;");
-    };
-}
-
-// --- СТРОГАЯ ЛОГИКА ПОСТРОЕНИЯ MASTER MODEL (4 сегмента) ---
-function generateMasterSfiral() {
-    const points = [];
-    const totalPoints = 8000; // Плотность эталонной модели
-    const resonanceStep = 372.72;
-
-    for (let i = 0; i < totalPoints; i++) {
-        const t = i / totalPoints; // Прогресс от 0 до 1
-        const angle = t * Math.PI * 30;
-        const radius = Math.exp(t * 2.2) * 1.8; // Экспонента для формы "ракушки"
-        
-        let x, y, z;
-
-        // 1. ЛЕВЫЙ ВИТОК (0% - 25%)
-        if (t < 0.25) {
-            x = Math.cos(angle) * radius;
-            y = Math.sin(angle) * radius;
-            z = t * 30;
-        } 
-        // 2. S-ПЕРЕХОД ЧАСТЬ А (25% - 50%)
-        else if (t < 0.50) {
-            const localT = (t - 0.25) / 0.25;
-            const phaseShift = Math.sin(localT * Math.PI) * 2.0;
-            x = Math.cos(angle) * radius * Math.cos(localT * Math.PI * 0.2);
-            y = Math.sin(angle) * radius;
-            z = t * 30 + phaseShift;
-        }
-        // 3. S-ПЕРЕХОД ЧАСТЬ Б (50% - 75%)
-        else if (t < 0.75) {
-            const localT = (t - 0.50) / 0.25;
-            const phaseShift = Math.cos(localT * Math.PI) * 2.0;
-            x = Math.cos(angle + Math.PI) * radius * Math.sin(localT * Math.PI * 0.2);
-            y = Math.sin(angle) * radius;
-            z = t * 30 + phaseShift;
-        }
-        // 4. ПРАВЫЙ ВИТОК (75% - 100%) - Инверсия хиральности
-        else {
-            x = Math.cos(-angle) * radius;
-            y = Math.sin(-angle) * radius;
-            z = t * 30;
-        }
-
-        points.push(x, y, z);
-    }
-    return { data: new Float32Array(points), shape: [totalPoints, 3] };
-}
-
-async function loadProtectedCore() {
-    console.log("⚡ Синтез эталонной модели Master...");
-    masterData = generateMasterSfiral();
-}
-
-function init3D() {
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    camera.position.set(120, 120, 300);
-    scene.add(currentGroup);
-
-    vCanvas = document.createElement('canvas');
-    vCtx = vCanvas.getContext('2d', { willReadFrequently: true });
-    initAnalyticsSystem();
-}
+// ... (начало файла с аналитикой и генерацией Master Сфирали остается прежним)
 
 function build3DCore() {
     if (!masterData) return;
@@ -109,7 +20,7 @@ function build3DCore() {
                 vPos = position;
                 vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
                 gl_Position = projectionMatrix * mvPosition;
-                gl_PointSize = (2.5 + uCharge * 3.0) * (250.0 / -mvPosition.z);
+                gl_PointSize = (2.5 + uCharge * 3.0) * (200.0 / -mvPosition.z);
             }
         `,
         fragmentShader: `
@@ -129,58 +40,32 @@ function build3DCore() {
         depthWrite: false
     });
 
-    for (let i = 0; i < window.GIDEON_COUNT; i++) {
-        const mesh = new THREE.Points(geometry, material);
-        const angle = (i / window.GIDEON_COUNT) * Math.PI * 2;
-        if (window.GIDEON_AXIS === 'Y') mesh.rotation.y = angle;
-        else mesh.rotation.x = angle;
-        currentGroup.add(mesh);
-    }
-}
+    // ЛОГИКА РАСПРЕДЕЛЕНИЯ ДИПОЛЕЙ (360 / n)
+    // Допустим, GIDEON_COUNT — это количество ДИПОЛЕЙ
+    const dipoleCount = window.GIDEON_COUNT; 
+    const stepAngle = (Math.PI * 2) / dipoleCount;
 
-function animate() {
-    requestAnimationFrame(animate);
-    frameCounter++;
+    for (let i = 0; i < dipoleCount; i++) {
+        const rotationAngle = i * stepAngle;
 
-    if (window.gVideo && window.gVideo.readyState === 4) {
-        if (frameCounter % 2 === 0) {
-            vCtx.drawImage(window.gVideo, 0, 0, 16, 16);
-            const pixel = vCtx.getImageData(8, 8, 1, 1).data;
-            const bright = pixel[0] / 255;
-            smoothResonance = (smoothResonance * 0.9) + (bright * 0.1);
-        }
+        // Создаем группу для одного диполя
+        const dipolePair = new THREE.Group();
 
-        const cohVal = document.getElementById('coh-val');
-        if (cohVal) cohVal.innerText = smoothResonance.toFixed(4);
+        // 1. ПЕРВАЯ СФИРАЛЬ ДИПОЛЯ
+        const sfiralA = new THREE.Points(geometry, material);
+        dipolePair.add(sfiralA);
+
+        // 2. ВТОРАЯ СФИРАЛЬ ДИПОЛЯ (Разворот на 180 градусов относительно первой)
+        const sfiralB = new THREE.Points(geometry, material);
+        sfiralB.rotation.y = Math.PI; // Поворот вокруг оси Y на 180
+        sfiralB.rotation.z = Math.PI; // Зеркальная антисимметрия (верх-низ)
+        dipolePair.add(sfiralB);
+
+        // Поворачиваем весь диполь на нужный угол в общем контуре
+        dipolePair.rotation.y = rotationAngle;
         
-        const bar = document.getElementById('core-charge');
-        if (bar) bar.style.width = (smoothResonance * 100) + "%";
-
-        currentGroup.children.forEach(child => {
-            child.material.uniforms.uTime.value = Date.now() * 0.001;
-            child.material.uniforms.uCharge.value = smoothResonance;
-        });
-
-        if (frameCounter % 6 === 0 && telemetryStream && telemetryStream.readyState === WebSocket.OPEN) {
-            telemetryStream.send(JSON.stringify({ telemetry: [smoothResonance] }));
-        }
+        currentGroup.add(dipolePair);
     }
-
-    controls.update();
-    currentGroup.rotation.y += 0.001;
-    renderer.render(scene, camera);
 }
 
-init3D();
-loadProtectedCore().then(() => {
-    build3DCore();
-    animate();
-});
-
-window.rebuildCore = build3DCore;
-
-window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-});
+// ... (остальной код animate и init)
