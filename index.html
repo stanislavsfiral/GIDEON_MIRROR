@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>QYDYR NEXUS - Незримый Страж</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: monospace; color: #00ffcc; }
+        #telemetry {
+            position: fixed; top: 15px; left: 15px; z-index: 1000;
+            background: rgba(0,10,10,0.95); padding: 20px; border: 2px solid #00ffcc; border-radius: 10px;
+            width: 280px; box-shadow: 0 0 20px #004444;
+        }
+        #controls-panel {
+            position: fixed; bottom: 15px; left: 15px; z-index: 1000;
+            background: rgba(0,20,20,0.9); padding: 15px; border: 1px solid #00ffcc; border-radius: 10px;
+            width: 280px;
+        }
+        .stat { margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px solid #003333; }
+        .val { color: #ff00ff; font-weight: bold; }
+        .bar-bg { width: 100%; height: 10px; background: #002222; margin-top: 10px; border: 1px solid #00ffcc; }
+        #core-charge { width: 0%; height: 100%; background: #00ffcc; transition: 0.3s; }
+        .btn-group { display: flex; gap: 5px; margin-top: 10px; }
+        button {
+            padding: 8px; cursor: pointer; background: #003333; color: #00ffcc;
+            border: 1px solid #00ffcc; flex: 1; font-weight: bold; font-size: 10px;
+        }
+        button:hover { background: #00ffcc; color: #000; }
+        button.active { background: #ffcc00; color: #000; border-color: #fff; }
+        label { font-size: 10px; text-transform: uppercase; display: block; margin-top: 10px; }
+        
+        /* Скрытая лампочка Кыдыр-ата */
+        #sys-led {
+            position: fixed; bottom: 10px; right: 10px; width: 6px; height: 6px; 
+            background: #220000; border-radius: 50%; z-index: 10000; 
+            transition: background 0.5s, box-shadow 0.5s; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="telemetry">
+        <h2 style="margin:0 0 10px 0; color: #00ffcc; text-shadow: 0 0 10px #004444;">QYDYR NEXUS</h2>
+        <div class="stat">СОСТОЯНИЕ: <span id="status-val" class="val">ОЖИДАНИЕ</span></div>
+        <div class="stat">ОСЬ ЦИКЛА: <span id="current-axis" class="val">Y</span></div>
+        <div class="stat">ЗАРЯД: <span id="charge-val" class="val">0%</span></div>
+        <div class="bar-bg"><div id="core-charge"></div></div>
+        <div class="stat" style="margin-top:10px;">РЕЗОНАНС: <span id="coh-val" class="val">0.0000</span></div>
+    </div>
+
+    <div id="controls-panel">
+        <label>ГЕОМЕТРИЯ ПОВОРОТА:</label>
+        <div class="btn-group">
+            <button onclick="updateAxis('X')" id="btnX">X-AXIS</button>
+            <button onclick="updateAxis('Y')" id="btnY" class="active">Y-AXIS</button>
+            <button onclick="updateAxis('Z')" id="btnZ">Z-AXIS</button>
+        </div>
+        <label>ПЛОТНОСТЬ ПОТОКА:</label>
+        <div class="btn-group">
+            <button onclick="updateDensity(12)" id="d12" class="active">12</button>
+            <button onclick="updateDensity(30)" id="d30">30</button>
+            <button onclick="updateDensity(60)" id="d60">60</button>
+        </div>
+        <button id="start-btn" style="margin-top:15px; background: #005555; width: 100%;">АКТИВИРОВАТЬ КОНТУР</button>
+    </div>
+
+    <div id="sys-led"></div>
+
+    <video id="video-preview" src="stream_test.mp4" loop muted playsinline crossorigin="anonymous" style="display:none"></video>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="npy.js"></script> 
+    <script src="engine.js"></script>
+
+    <script>
+        document.getElementById('start-btn').addEventListener('click', () => {
+            const video = document.getElementById('video-preview');
+            video.play();
+            window.gVideo = video;
+        });
+
+        function updateAxis(axis) {
+            window.GIDEON_AXIS = axis;
+            document.getElementById('current-axis').innerText = axis;
+            document.querySelectorAll('.btn-group button').forEach(b => {
+                if(b.id.startsWith('btn')) b.classList.remove('active');
+            });
+            document.getElementById('btn' + axis).classList.add('active');
+            if(window.rebuildCore) window.rebuildCore();
+        }
+
+        function updateDensity(n) {
+            window.GIDEON_COUNT = n;
+            document.querySelectorAll('.btn-group button').forEach(b => {
+                if(b.id.startsWith('d')) b.classList.remove('active');
+            });
+            document.getElementById('d' + n).classList.add('active');
+            if(window.rebuildCore) window.rebuildCore();
+        }
+    </script>
+</body>
+</html>
