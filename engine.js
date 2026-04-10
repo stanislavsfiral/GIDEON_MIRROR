@@ -1,3 +1,4 @@
+const npyLoader = new npyjs();
 let scene, camera, renderer, controls, masterData;
 let currentGroup = new THREE.Group();
 let vCanvas, vCtx;
@@ -5,29 +6,21 @@ let smoothResonance = 0.5;
 
 window.gVideo = null;
 window.GIDEON_AXIS = 'Y';
-window.GIDEON_COUNT = 6; 
+window.GIDEON_COUNT = 6; // Количество диполей
 
-// 1. ТВОЯ ГЕНЕРАЦИЯ БАЗОВОЙ ГЕОМЕТРИИ
-function generateSfiralBase() {
-    const pts = [];
-    const count = 4000; 
-    const resonanceStep = 372.72;
-
-    for (let i = 0; i < count; i++) {
-        const t = i / count;
-        const angle = t * Math.PI * 25; // Закрутка витков
-        const r = Math.pow(t, 0.5) * 20; // Радиус Сфирали
-        
-        const x = Math.cos(angle) * r;
-        const y = Math.sin(angle) * r;
-        const z = (t - 0.5) * resonanceStep * 0.15; // Центрирование по Z
-        
-        pts.push(x, y, z);
+// --- ЗАГРУЗКА MASTER МОДЕЛИ ---
+async function loadProtectedCore() {
+    try {
+        console.log("📡 Загрузка Master модели...");
+        const data = await npyLoader.load('master.npy');
+        masterData = data.data; 
+        console.log("✅ Master модель загружена успешно.");
+    } catch (e) {
+        console.error("❌ Ошибка загрузки .npy:", e);
     }
-    return new Float32Array(pts);
 }
 
-// 2. ТВОЯ ФУНКЦИЯ СОЗДАНИЯ СФИРАЛИ
+// --- СОЗДАНИЕ СФИРАЛИ (Твоя логика из v13.7) ---
 function createSfiral(data, ry, rx, rz) {
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute('position', new THREE.BufferAttribute(data, 3));
@@ -45,7 +38,7 @@ function createSfiral(data, ry, rx, rz) {
                 vPos = position;
                 vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
                 gl_Position = projectionMatrix * mvPosition;
-                gl_PointSize = (2.0 + uCharge * 5.0) * (350.0 / -mvPosition.z);
+                gl_PointSize = (2.0 + uCharge * 5.0) * (300.0 / -mvPosition.z);
             }
         `,
         fragmentShader: `
@@ -68,7 +61,7 @@ function createSfiral(data, ry, rx, rz) {
     return points;
 }
 
-// 3. ТВОЯ СБОРКА ЯДРА И АВТО-ЦЕНТРИРОВАНИЕ
+// --- СБОРКА ЯДРА (6 диполей = 12 сфиралей) ---
 function build3DCore() {
     if (!masterData) return;
     currentGroup.clear();
@@ -79,28 +72,27 @@ function build3DCore() {
     for (let i = 0; i < count; i++) {
         const angle = i * step;
 
-        // ДИПОЛЬ: Прямая + Зеркальная (разворот 180 по Y и Z)
+        // ДИПОЛЬ: Оригинал + Зеркальный разворот (180 по Y и Z)
         currentGroup.add(createSfiral(masterData, angle, 0, 0));
         currentGroup.add(createSfiral(masterData, angle + Math.PI, 0, Math.PI));
     }
     
-    // Авто-фокус камеры (как в оригинале)
+    // Авто-фокус (Твой centerView)
     const box = new THREE.Box3().setFromObject(currentGroup);
+    const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    camera.position.z = maxDim * 1.5;
-    controls.target.set(0, 0, 0);
+    camera.position.set(center.x, center.y, center.z + Math.max(size.x, size.y, size.z) * 1.8);
+    controls.target.copy(center);
 }
 
 function init3D() {
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 10000);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
     renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
     scene.add(currentGroup);
     
     vCanvas = document.createElement('canvas');
@@ -128,11 +120,12 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// СТАРТ
+// ЗАПУСК
 init3D();
-masterData = generateSfiralBase();
-build3DCore();
-animate();
+loadProtectedCore().then(() => {
+    build3DCore();
+    animate();
+});
 
 window.rebuildCore = build3DCore;
 window.addEventListener('resize', () => {
