@@ -17,42 +17,45 @@
         }
         .stat { margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px solid #003333; }
         .val { color: #ff00ff; font-weight: bold; }
+        #sys-led { width: 12px; height: 12px; border-radius: 50%; background: #333; display: inline-block; margin-right: 10px; border: 1px solid #fff; }
+        .progress-box { width: 100%; height: 10px; background: #111; border: 1px solid #00ffcc; margin-top: 5px; }
+        #core-charge { width: 0%; height: 100%; background: linear-gradient(90deg, #004444, #00ffcc); transition: width 0.3s; }
+        .controls { display: flex; gap: 10px; margin-top: 10px; }
         button { 
-            background: #002222; border: 1px solid #00ffcc; color: #00ffcc; 
-            padding: 8px; cursor: pointer; width: 100%; margin-top: 5px;
-            transition: 0.3s; font-family: monospace;
+            background: #001111; color: #00ffcc; border: 1px solid #00ffcc; 
+            padding: 5px 10px; cursor: pointer; transition: 0.3s;
         }
         button:hover { background: #00ffcc; color: #000; }
-        .active { background: #00ffcc; color: #000; }
-        #video-preview { display: none; }
+        button.active { background: #ff00ff; color: #fff; border-color: #ff00ff; }
+        #start-btn { width: 100%; padding: 10px; font-size: 1.1em; }
     </style>
 </head>
 <body>
 
     <div id="telemetry">
-        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-            <div id="sys-led" style="width: 12px; height: 12px; border-radius: 50%; background: #555; margin-right: 10px;"></div>
-            <strong style="letter-spacing: 2px;">GIDEON v13.7</strong>
+        <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 15px; text-align: center; border-bottom: 2px solid #00ffcc;">
+            GIDEON ANALYTICS V13.7
         </div>
-        <div class="stat"><span>СТАТУС:</span> <span id="status-val" class="val">ОЖИДАНИЕ</span></div>
-        <div class="stat"><span>РЕЗОНАНС:</span> <span id="coh-val" class="val">0.0000</span></div>
-        <div class="stat"><span>ЗАРЯД ЯДРА:</span> <span id="charge-val" class="val">0%</span></div>
-        <div style="height: 4px; background: #002222; margin-top: 10px;">
-            <div id="core-charge" style="height: 100%; width: 0%; background: #00ffcc; transition: 0.3s;"></div>
+        <div class="stat">
+            <span>SYS LED:</span>
+            <span><span id="sys-led"></span><span id="status-val" style="color: #555;">ОЖИДАНИЕ</span></span>
         </div>
+        <div class="stat">РЕЗОНАНС: <span id="coh-val" class="val">0.0000</span></div>
+        <div class="stat">ЗАРЯД ЯДРА: <span id="charge-val" class="val">0%</span></div>
+        <div class="progress-box"><div id="core-charge"></div></div>
     </div>
 
     <div id="controls-panel">
-        <div style="font-size: 10px; margin-bottom: 10px; opacity: 0.7;">УПРАВЛЕНИЕ ОСЯМИ: <span id="current-axis">Y</span></div>
-        <div class="btn-group" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
+        <div style="font-size: 0.9em; margin-bottom: 10px;">ОСЬ ВРАЩЕНИЯ: <span id="current-axis" class="val">Y</span></div>
+        <div class="controls">
             <button id="btnX" onclick="updateAxis('X')">X</button>
             <button id="btnY" class="active" onclick="updateAxis('Y')">Y</button>
             <button id="btnZ" onclick="updateAxis('Z')">Z</button>
         </div>
-        <button id="start-btn" style="margin-top: 15px; font-weight: bold; border-width: 2px;">⚡ АКТИВИРОВАТЬ ЯДРО</button>
+        <button id="start-btn" style="margin-top: 15px;">⚡ АКТИВИРОВАТЬ ЯДРО</button>
     </div>
 
-    <video id="video-preview" src="stream_test.mp4" loop muted playsinline crossorigin="anonymous"></video>
+    <video id="video-preview" src="stream_test.mp4" loop muted playsinline crossorigin="anonymous" style="display:none"></video>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
@@ -62,19 +65,35 @@
     <script>
         document.getElementById('start-btn').addEventListener('click', function() {
             const video = document.getElementById('video-preview');
+            const btn = this;
+            
+            // 1. Сначала привязываем видео к глобальному объекту
+            window.gVideo = video;
+            
+            // 2. Пытаемся запустить воспроизведение
             video.play().then(() => {
-                window.gVideo = video;
+                console.log("[OK] Видеопоток активен. Передача данных начата.");
                 document.getElementById('status-val').innerText = "АКТИВЕН";
-                this.style.display = "none";
-            }).catch(e => console.error("Ошибка видео:", e));
+                document.getElementById('status-val').style.color = "#00ffcc";
+                btn.innerText = "ЯДРО ЗАПУЩЕНО";
+                btn.style.borderColor = "#ff00ff";
+                btn.disabled = true; // Отключаем кнопку после запуска
+            }).catch(e => {
+                console.error("[ERR] Ошибка запуска видео:", e);
+                // Повторная попытка принудительно
+                video.muted = true;
+                video.play();
+            });
         });
 
         function updateAxis(axis) {
             window.GIDEON_AXIS = axis;
             document.getElementById('current-axis').innerText = axis;
-            document.querySelectorAll('.btn-group button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.controls button').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn' + axis).classList.add('active');
-            if(window.rebuildCore) window.rebuildCore();
+            
+            // Если в движке есть функция пересборки, вызываем её
+            if (window.rebuildCore) window.rebuildCore();
         }
     </script>
 </body>
