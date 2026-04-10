@@ -50,14 +50,19 @@ function createSfiral(data, ry, rx, rz) {
                     vPos = position;
                     vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
                     gl_Position = projectionMatrix * mvPos;
-                    gl_PointSize = (3.5 + uCharge * 5.0) * (300.0 / -mvPos.z);
+                    
+                    // Улучшенная логика: базовый размер 4.0 + зависимость от заряда.
+                    // Множитель 450.0 делает облако более плотным.
+                    float pSize = (4.0 + uCharge * 6.0) * (450.0 / -mvPos.z);
+                    
+                    // Жесткое ограничение снизу, чтобы точки не исчезали в черноте
+                    gl_PointSize = max(pSize, 2.5);
                 }
             `,
             fragmentShader: `
                 uniform vec3 uColor;
                 uniform float uCharge;
                 void main() {
-                    // Стабильное свечение: базовые 0.4 + динамика резонанса
                     float br = 0.4 + uCharge * 0.6;
                     gl_FragColor = vec4(uColor * br, 0.9);
                 }
@@ -104,9 +109,12 @@ function animate() {
         const br = vCtx.getImageData(8, 8, 1, 1).data[0] / 255;
         smoothResonance = (smoothResonance * 0.9) + (br * 0.1);
         
-        document.getElementById('coh-val').innerText = smoothResonance.toFixed(4);
-        document.getElementById('charge-val').innerText = Math.round(smoothResonance * 100) + "%";
-        document.getElementById('core-charge').style.width = (smoothResonance * 100) + "%";
+        const coh = document.getElementById('coh-val');
+        const chg = document.getElementById('charge-val');
+        const bar = document.getElementById('core-charge');
+        if(coh) coh.innerText = smoothResonance.toFixed(4);
+        if(chg) chg.innerText = Math.round(smoothResonance * 100) + "%";
+        if(bar) bar.style.width = (smoothResonance * 100) + "%";
     }
 
     currentGroup.children.forEach(dipole => {
