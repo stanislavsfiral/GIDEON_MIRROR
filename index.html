@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+<<<<<<< HEAD
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIDEON v13.7 - Sfiral Intel System</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; color: #00ffcc; }
+        
+        /* Контейнер верхних кнопок */
+        .controls-container { position: fixed; top: 15px; right: 15px; z-index: 2001; display: flex; gap: 10px; }
+        .control-btn { 
+            background: #000; color: #ffcc00; border: 1px solid #ffcc00; 
+            width: 40px; height: 40px; cursor: pointer; border-radius: 5px; 
+            font-size: 20px; font-weight: bold; transition: 0.3s;
+        }
+        .control-btn:hover { background: #ffcc00; color: #000; box-shadow: 0 0 15px #ffcc00; }
+
+        /* Панель INFO (Скрытая по умолчанию) */
+        #info-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 3000; display: none;
+            justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;
+        }
+        #info-content {
+            background: #001515; border: 2px solid #00ffcc; padding: 25px;
+            max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto;
+            border-radius: 12px; box-shadow: 0 0 50px rgba(0, 255, 204, 0.3);
+            position: relative; line-height: 1.6;
+        }
+        #info-content h3 { color: #ffcc00; border-bottom: 1px solid #ffcc00; padding-bottom: 10px; margin-top: 0; }
+        .info-close { position: absolute; top: 15px; right: 15px; color: #ff4444; cursor: pointer; font-size: 24px; font-weight: bold; }
+        .guide-step { margin-bottom: 15px; font-size: 13px; border-left: 2px solid #00ffcc; padding-left: 10px; }
+        .guide-step b { color: #ffcc00; }
+
+        /* Панель управления (Меню) */
+        #gideon-ui { 
+            position: fixed; top: 65px; right: 15px; 
+            background: rgba(0, 15, 15, 0.98); 
+            padding: 15px; border: 2px solid #00ffcc; 
+            z-index: 1000; width: 280px; 
+            max-height: 85vh; overflow-y: auto; 
+            border-radius: 8px; box-shadow: 0 0 30px rgba(0, 255, 204, 0.4);
+            scrollbar-width: thin; scrollbar-color: #00ffcc #000;
+        }
+
+        #global-tooltip {
+            position: fixed; display: none; background: #ffcc00; color: #000;
+            padding: 8px 12px; border-radius: 4px; font-size: 11px; font-weight: bold;
+            z-index: 9999; pointer-events: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            max-width: 220px; text-align: center; line-height: 1.2;
+        }
+
+        h2 { font-size: 14px; margin: 0 0 10px 0; text-align: center; color: #fff; border-bottom: 1px solid #00ffcc; padding-bottom: 5px; }
+        .cat-group { margin-bottom: 10px; padding: 10px; border: 1px solid #00ffcc33; border-radius: 4px; background: rgba(0,30,30,0.3); }
+        .cat-header { font-size: 9px; color: #ffcc00; margin-bottom: 8px; text-transform: uppercase; border-left: 3px solid #ffcc00; padding-left: 8px; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+        input, select { background: #000; border: 1px solid #00ffcc; color: #ffcc00; padding: 6px; font-size: 11px; width: 100%; box-sizing: border-box; }
+        .m-btn { background: rgba(0, 40, 40, 0.7); border: 1px solid #00ffcc66; color: #fff; padding: 10px; font-size: 10px; cursor: pointer; border-radius: 3px; width: 100%; }
+        .m-btn:hover { background: #00ffcc; color: #000; }
+        .m-btn.action { background: #008888; border: 1px solid #00ffcc; font-weight: bold; }
+        #stats-box { position: fixed; bottom: 15px; left: 15px; font-size: 10px; color: #ffcc00; pointer-events: none; }
+=======
+    <title>QYDYR NEXUS - GIDEON v13.7</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; font-family: monospace; color: #00ffcc; }
+        #telemetry {
+            position: fixed; top: 15px; left: 15px; z-index: 1000;
+            background: rgba(0,10,10,0.95); padding: 20px; border: 2px solid #00ffcc; border-radius: 10px;
+            width: 280px; box-shadow: 0 0 20px #004444;
+        }
+        #controls-panel {
+            position: fixed; bottom: 15px; left: 15px; z-index: 1000;
+            background: rgba(0,20,20,0.9); padding: 15px; border: 1px solid #00ffcc; border-radius: 10px;
+            width: 280px;
+        }
+        .stat { margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px solid #003333; }
+        .val { color: #ff00ff; font-weight: bold; }
+        #sys-led { width: 12px; height: 12px; border-radius: 50%; background: #333; display: inline-block; margin-right: 10px; border: 1px solid #fff; }
+        .progress-box { width: 100%; height: 10px; background: #111; border: 1px solid #00ffcc; margin-top: 5px; }
+        #core-charge { width: 0%; height: 100%; background: linear-gradient(90deg, #004444, #00ffcc); transition: width 0.3s; }
+        .controls { display: flex; gap: 10px; margin-top: 10px; }
+        button { 
+            background: #001111; color: #00ffcc; border: 1px solid #00ffcc; 
+            padding: 5px 10px; cursor: pointer; transition: 0.3s;
+        }
+        button:hover { background: #00ffcc; color: #000; }
+        button.active { background: #ff00ff; color: #fff; border-color: #ff00ff; }
+        #start-btn { width: 100%; padding: 10px; font-size: 1.1em; }
+>>>>>>> f46384e58e0728d524de27ac4de3608a68692290
+    </style>
+</head>
+<body>
+
+<<<<<<< HEAD
+    <div id="global-tooltip"></div>
+    <div id="loader" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#000; color:#00ffcc; display:flex; justify-content:center; align-items:center; z-index:3000;">GIDEON v13.7: СИСТЕМА АКТИВНА</div>
+    <div id="stats-box">FPS: <span id="fps">0</span> | PTS: <span id="count">0</span></div>
+
+    <div class="controls-container">
+        <button class="control-btn" onclick="toggleInfo()" data-tip="Описание и Инструкция">i</button>
+        <button class="control-btn" onclick="toggleUI()" data-tip="Меню управления (≡)">≡</button>
+    </div>
+
+    <div id="info-overlay">
+        <div id="info-content">
+            <span class="info-close" onclick="toggleInfo()">×</span>
+            <h3>О ПРОЕКТЕ GIDEON</h3>
+            <p style="font-size: 13px; color: #00ffcc;">
+                <b>GIDEON (Global Intel Sfiral Design)</b> — это синтезатор топологических структур на базе "Сфиральной Архитектуры". 
+                Система позволяет моделировать квантовые узлы и фрактальные цепочки с эталонным шагом резонанса 372.72.
+            </p>
+            
+            <h3>РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ:</h3>
+            <div class="guide-step"><b>Навигация:</b> Левая кнопка мыши — вращение. Колесо — масштаб. Правая кнопка — перемещение.</div>
+            <div class="guide-step"><b>Ядро:</b> Создает круговой массив витков. Используйте "+ СЛОЙ" для сборки объемных 3D-сфер, меняя оси X, Y, Z.</div>
+            <div class="guide-step"><b>Кольца:</b> Готовые пресеты (Треугольник/Квадрат) со вложенной матрешкой глубины L.</div>
+            <div class="guide-step"><b>Линейная цепь:</b> Выстраивает одиночные сфирали в идеальный резонансный ряд (Шаг 372.72).</div>
+            <div class="guide-step"><b>Матрица:</b> Фрактальное вложение сфиралей друг в друга (L — вложенность, CH — длина ветки).</div>
+            <div class="guide-step"><b>Центровка:</b> Кнопка CENTER возвращает камеру в фокус модели, если она улетела.</div>
+        </div>
+    </div>
+
+    <div id="gideon-ui">
+        <h2>КОНСТРУКТОР GIDEON</h2>
+        
+        <div class="cat-group">
+            <div class="cat-header">⚛️ ГЕНЕРАТОР ЯДРА</div>
+            <select id="axis-select" data-tip="Плоскость вращения (X, Y, Z)">
+                <option value="y">ОСЬ Y (ГОРИЗОНТАЛЬ)</option>
+                <option value="x">ОСЬ X (ВЕРТИКАЛЬ)</option>
+                <option value="z">ОСЬ Z (ГЛУБИНА)</option>
+            </select>
+            <input type="number" id="core-count" value="12" style="margin-top:5px;" data-tip="Число сфиралей в круге">
+            <div class="btn-grid" style="margin-top:5px;">
+                <button class="m-btn action" onclick="build3DCore(false)" data-tip="Новое чистое ядро">НОВОЕ ЯДРО</button>
+                <button class="m-btn action" style="background:#440066;" onclick="build3DCore(true)" data-tip="Добавить новый слой">+ СЛОЙ</button>
+            </div>
+        </div>
+
+        <div class="cat-group">
+            <div class="cat-header">💍 КОЛЬЦА</div>
+            <input type="number" id="manual-l-depth" value="3" data-tip="Уровни вложенности L">
+            <div class="btn-grid" style="margin-top:5px;">
+                <button class="m-btn" onclick="buildManualRing('ring3', 3)" data-tip="Кольцо x3">RING x3</button>
+                <button class="m-btn" onclick="buildManualRing('ring4', 4)" data-tip="Кольцо x4">RING x4</button>
+            </div>
+        </div>
+
+        <div class="cat-group">
+            <div class="cat-header">🧱 ЛИНЕЙНАЯ ЦЕПЬ</div>
+            <input type="number" id="simple-chain" value="4" data-tip="Число сфиралей в цепи">
+            <button class="m-btn" style="width:100%; margin-top:5px;" onclick="runSimpleChain()" data-tip="Цепь (Шаг 372.72)">BUILD CHAIN</button>
+        </div>
+
+        <div class="cat-group">
+            <div class="cat-header">🌀 МАТРИЦА (МАТРЕШКА)</div>
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input type="number" id="nest-levels" value="3" data-tip="Глубина L">
+                <input type="number" id="nest-chain" value="4" data-tip="Длина CH">
+            </div>
+            <button class="m-btn action" onclick="buildFractalChain()" data-tip="Фрактальная матрица">BUILD MATRIX</button>
+        </div>
+
+        <div class="btn-grid">
+            <button class="m-btn" style="border-color:#ff4444; color:#ff4444;" onclick="resetAll()">CLEAR</button>
+            <button class="m-btn" style="border-color:#ffcc00; color:#ffcc00;" onclick="centerView()">CENTER</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        const RESONANCE_STEP = 372.72;
+
+        // --- УПРАВЛЕНИЕ INFO И UI ---
+        function toggleInfo() {
+            const overlay = document.getElementById('info-overlay');
+            overlay.style.display = (overlay.style.display === 'flex') ? 'none' : 'flex';
+        }
+        function toggleUI() {
+            const ui = document.getElementById('gideon-ui');
+            ui.style.display = ui.style.display==='none'?'block':'none';
+        }
+
+        // --- ПОДСКАЗКИ ---
+        const tooltip = document.getElementById('global-tooltip');
+        document.addEventListener('mouseover', (e) => {
+            const tip = e.target.getAttribute('data-tip');
+            if (tip) { tooltip.textContent = tip; tooltip.style.display = 'block'; }
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (tooltip.style.display === 'block') {
+                if (e.target.tagName === 'INPUT') { tooltip.style.display = 'none'; return; }
+                let x = e.clientX - 210; let y = e.clientY + 20;
+                if (x < 10) x = e.clientX + 20; 
+                tooltip.style.left = x + 'px'; tooltip.style.top = y + 'px';
+            }
+        });
+        document.addEventListener('mouseout', (e) => {
+            if (e.target.getAttribute('data-tip')) tooltip.style.display = 'none';
+        });
+
+        // --- THREE.JS СЦЕНА ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000000);
+        camera.position.set(3000, 3000, 3000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        let currentGroup = new THREE.Group();
+        scene.add(currentGroup);
+        let baseDataArray = null;
+        let lastTime = 0, frameCount = 0, totalPtsOnScreen = 0;
+        const DEPTH_COLORS = [0xffffff, 0xffff00, 0x00ff00, 0xff00ff];
+
+        async function loadProtectedCore() {
+            const parts = ['p1.npy', 'p2.npy', 'p3.npy', 'p4.npy'];
+            let combined = [];
+            try {
+                for (let p of parts) {
+                    const res = await fetch(`models/core_v8/${p}`);
+                    const buffer = await res.arrayBuffer();
+                    combined.push(...new Float32Array(buffer.slice(128)));
+                }
+                baseDataArray = new Float32Array(combined);
+                document.getElementById('loader').style.display = 'none';
+            } catch (e) { console.error(e); }
+        }
+
+        function createPoints(data, scale = 1, colorIdx = 0) {
+            const geo = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(data, 3));
+            return new THREE.Points(geo, new THREE.PointsMaterial({ 
+                color: DEPTH_COLORS[colorIdx % 4], size: 5.5 * scale, 
+                transparent: true, opacity: 1.0, blending: THREE.AdditiveBlending, depthWrite: false 
+            }));
+        }
+
+        async function build3DCore(addLayer = false) {
+            if (!baseDataArray) await loadProtectedCore();
+            if (!addLayer) resetAll();
+            const count = parseInt(document.getElementById('core-count').value);
+            const axis = document.getElementById('axis-select').value;
+            const angleStep = (Math.PI * 2) / count;
+            for (let i = 0; i < count; i++) {
+                const petal = new THREE.Group();
+                const p1 = createPoints(baseDataArray, 1, addLayer ? 1 : 0);
+                const p2 = createPoints(baseDataArray, 1, addLayer ? 1 : 0);
+                p2.rotation.set(Math.PI, 0, Math.PI);
+                petal.add(p1); petal.add(p2);
+                if (axis === 'x') petal.rotation.x = i * angleStep;
+                else if (axis === 'y') petal.rotation.y = i * angleStep;
+                else if (axis === 'z') petal.rotation.z = i * angleStep;
+                currentGroup.add(petal);
+            }
+            totalPtsOnScreen += (baseDataArray.length/3)*2*count; finalize(totalPtsOnScreen);
+        }
+
+        async function buildManualRing(folder, count) {
+            resetAll();
+            const L = parseInt(document.getElementById('manual-l-depth').value);
+            let pts = 0;
+            for (let i = 1; i <= count; i++) {
+                const m = await fetchPoints(`models/static/rings/${folder}/${i}/part1.npy`);
+                if (m) { currentGroup.add(createPoints(m, 1.2, 0)); pts += m.length/3; }
+                if (L >= 2) {
+                    const s1 = await fetchPoints(`models/static/rings/${folder}/${i}/sub1/part1.npy`);
+                    if (s1) { currentGroup.add(createPoints(s1, 0.8, 1)); pts += s1.length/3; }
+                }
+                if (L >= 3) {
+                    const s2 = await fetchPoints(`models/static/rings/${folder}/${i}/sub2/part1.npy`);
+                    if (s2) { currentGroup.add(createPoints(s2, 0.6, 2)); pts += s2.length/3; }
+                }
+            }
+            totalPtsOnScreen = pts; finalize(totalPtsOnScreen);
+        }
+
+        async function runSimpleChain() {
+            if (!baseDataArray) await loadProtectedCore();
+            resetAll();
+            const count = parseInt(document.getElementById('simple-chain').value);
+            for (let i = 0; i < count; i++) {
+                const p = createPoints(baseDataArray, 1, 0);
+                p.position.z = i * RESONANCE_STEP;
+                if (i % 2 !== 0) p.rotation.x = Math.PI;
+                currentGroup.add(p);
+            }
+            totalPtsOnScreen = (baseDataArray.length/3)*count; finalize(totalPtsOnScreen);
+        }
+
+        async function buildFractalChain() {
+            if (!baseDataArray) await loadProtectedCore();
+            resetAll();
+            const levels = parseInt(document.getElementById('nest-levels').value);
+            const chainLen = parseInt(document.getElementById('nest-chain').value);
+            let pts = 0;
+            for (let c = 0; c < chainLen; c++) {
+                const linkGroup = new THREE.Group();
+                pts += generateRecursive(1, levels, new THREE.Vector3(0,0,0), 1, linkGroup);
+                linkGroup.position.z = c * RESONANCE_STEP;
+                if (c % 2 !== 0) linkGroup.rotation.x = Math.PI;
+                currentGroup.add(linkGroup);
+            }
+            totalPtsOnScreen = pts; finalize(totalPtsOnScreen);
+        }
+
+        function generateRecursive(lvl, max, pos, scale, group) {
+            const p = createPoints(baseDataArray, scale, lvl-1);
+            p.position.copy(pos); p.scale.set(scale, scale, scale);
+            group.add(p);
+            let pts = (baseDataArray.length/3);
+            if (lvl < max) {
+                const s = scale * 0.5;
+                const shiftX = 75 * scale;
+                const shiftZ = (RESONANCE_STEP / 4) * scale; 
+                pts += generateRecursive(lvl+1, max, new THREE.Vector3(pos.x - shiftX, pos.y, pos.z - shiftZ), s, group);
+                pts += generateRecursive(lvl+1, max, new THREE.Vector3(pos.x + shiftX, pos.y, pos.z + shiftZ), s, group);
+            }
+            return pts;
+        }
+
+        async function fetchPoints(path) {
+            try {
+                const res = await fetch(path);
+                if (!res.ok) return null;
+                const buffer = await res.arrayBuffer();
+                return new Float32Array(buffer.slice(128));
+            } catch (e) { return null; }
+        }
+
+        async function buildBase(count) {
+            if (!baseDataArray) await loadProtectedCore();
+            resetAll();
+            for (let i = 0; i < count; i++) {
+                const p = createPoints(baseDataArray, 1, 0);
+                if (i === 1) p.rotation.set(Math.PI, 0, Math.PI);
+                currentGroup.add(p);
+            }
+            totalPtsOnScreen = (baseDataArray.length/3)*count; finalize(totalPtsOnScreen);
+        }
+
+        function resetAll() { scene.remove(currentGroup); currentGroup = new THREE.Group(); scene.add(currentGroup); totalPtsOnScreen = 0; }
+        function finalize(pts) { 
+            document.getElementById('count').innerText = Math.round(pts).toLocaleString(); 
+            setTimeout(centerView, 100);
+        }
+        function animate(time) {
+            requestAnimationFrame(animate); frameCount++;
+            if (time >= lastTime + 1000) { document.getElementById('fps').innerText = frameCount; frameCount = 0; lastTime = time; }
+            controls.update(); renderer.render(scene, camera);
+        }
+        function centerView() {
+            const box = new THREE.Box3().setFromObject(currentGroup);
+            const center = box.getCenter(new THREE.Vector3());
+            const size = box.getSize(new THREE.Vector3());
+            camera.position.set(center.x, center.y, center.z + Math.max(size.x, size.y, size.z)*1.8);
+            controls.target.copy(center);
+        }
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        loadProtectedCore().then(() => { build3DCore(false); animate(0); });
+=======
+    <div id="telemetry">
+        <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 15px; text-align: center; border-bottom: 2px solid #00ffcc;">
+            GIDEON ANALYTICS V13.7
+        </div>
+        <div class="stat">
+            <span>SYS LED:</span>
+            <span><span id="sys-led"></span><span id="status-val" style="color: #555;">ОЖИДАНИЕ</span></span>
+        </div>
+        <div class="stat">РЕЗОНАНС: <span id="coh-val" class="val">0.0000</span></div>
+        <div class="stat">ЗАРЯД ЯДРА: <span id="charge-val" class="val">0%</span></div>
+        <div class="progress-box"><div id="core-charge"></div></div>
+    </div>
+
+    <div id="controls-panel">
+        <div style="font-size: 0.9em; margin-bottom: 10px;">ОСЬ ВРАЩЕНИЯ: <span id="current-axis" class="val">Y</span></div>
+        <div class="controls">
+            <button id="btnX" onclick="updateAxis('X')">X</button>
+            <button id="btnY" class="active" onclick="updateAxis('Y')">Y</button>
+            <button id="btnZ" onclick="updateAxis('Z')">Z</button>
+        </div>
+        <button id="start-btn" style="margin-top: 15px;">⚡ АКТИВИРОВАТЬ ЯДРО</button>
+    </div>
+
+    <video id="video-preview" src="stream_test.mp4" loop muted playsinline crossorigin="anonymous" style="display:none"></video>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="npy.js"></script> 
+    <script src="engine.js"></script>
+
+    <script>
+        document.getElementById('start-btn').addEventListener('click', function() {
+            const video = document.getElementById('video-preview');
+            const btn = this;
+            
+            // 1. Сначала привязываем видео к глобальному объекту
+            window.gVideo = video;
+            
+            // 2. Пытаемся запустить воспроизведение
+            video.play().then(() => {
+                console.log("[OK] Видеопоток активен. Передача данных начата.");
+                document.getElementById('status-val').innerText = "АКТИВЕН";
+                document.getElementById('status-val').style.color = "#00ffcc";
+                btn.innerText = "ЯДРО ЗАПУЩЕНО";
+                btn.style.borderColor = "#ff00ff";
+                btn.disabled = true; // Отключаем кнопку после запуска
+            }).catch(e => {
+                console.error("[ERR] Ошибка запуска видео:", e);
+                // Повторная попытка принудительно
+                video.muted = true;
+                video.play();
+            });
+        });
+
+        function updateAxis(axis) {
+            window.GIDEON_AXIS = axis;
+            document.getElementById('current-axis').innerText = axis;
+            document.querySelectorAll('.controls button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn' + axis).classList.add('active');
+            
+            // Если в движке есть функция пересборки, вызываем её
+            if (window.rebuildCore) window.rebuildCore();
+        }
+>>>>>>> f46384e58e0728d524de27ac4de3608a68692290
+    </script>
+</body>
+</html>

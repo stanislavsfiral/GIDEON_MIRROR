@@ -1,0 +1,12 @@
+<<<<<<< HEAD
+id_ed25519*
+=======
+# Секретные компоненты QYDYR NEXUS
+
+gideon_v21_transceiver_key_test.py
+port_test.py
+
+# Системные файлы
+__pycache__/
+.DS_Store
+>>>>>>> f46384e58e0728d524de27ac4de3608a68692290
