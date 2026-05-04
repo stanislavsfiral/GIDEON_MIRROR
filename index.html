@@ -6,8 +6,6 @@
     <title>GIDEON v13.7 - Sfiral Intel System</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', monospace; color: #00ffcc; }
-        
-        /* Панель аналитики (Слева) */
         #telemetry {
             position: fixed; top: 15px; left: 15px; z-index: 1000;
             background: rgba(0,10,10,0.95); padding: 15px; border: 1px solid #00ffcc; border-radius: 8px;
@@ -16,17 +14,12 @@
         .stat { margin-bottom: 8px; display: flex; justify-content: space-between; border-bottom: 1px solid #00ffcc33; }
         .val { color: #ffcc00; font-weight: bold; }
         #sys-led { width: 10px; height: 10px; border-radius: 50%; background: #333; display: inline-block; margin-right: 8px; border: 1px solid #fff; }
-
-        /* Контейнер верхних кнопок */
         .controls-container { position: fixed; top: 15px; right: 15px; z-index: 2001; display: flex; gap: 10px; }
         .control-btn { 
             background: #000; color: #ffcc00; border: 1px solid #ffcc00; 
             width: 35px; height: 35px; cursor: pointer; border-radius: 5px; 
             font-size: 18px; font-weight: bold; transition: 0.3s;
         }
-        .control-btn:hover { background: #ffcc00; color: #000; box-shadow: 0 0 15px #ffcc00; }
-
-        /* Панель управления (Справа) */
         #gideon-ui { 
             position: fixed; top: 65px; right: 15px; 
             background: rgba(0, 15, 15, 0.98); 
@@ -35,7 +28,6 @@
             max-height: 80vh; overflow-y: auto; 
             border-radius: 8px; box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
         }
-
         h2 { font-size: 14px; margin: 0 0 10px 0; text-align: center; color: #fff; border-bottom: 1px solid #00ffcc; padding-bottom: 5px; }
         .cat-group { margin-bottom: 10px; padding: 10px; border: 1px solid #00ffcc33; border-radius: 4px; background: rgba(0,30,30,0.3); }
         .cat-header { font-size: 9px; color: #ffcc00; margin-bottom: 8px; text-transform: uppercase; border-left: 3px solid #ffcc00; padding-left: 8px; }
@@ -44,12 +36,10 @@
         .m-btn { background: rgba(0, 40, 40, 0.7); border: 1px solid #00ffcc66; color: #fff; padding: 8px; font-size: 10px; cursor: pointer; border-radius: 3px; width: 100%; margin-top: 5px;}
         .m-btn:hover { background: #00ffcc; color: #000; }
         .m-btn.action { background: #008888; border: 1px solid #00ffcc; font-weight: bold; }
-        #stats-box { position: fixed; bottom: 15px; right: 15px; font-size: 10px; color: #ffcc00; }
     </style>
 </head>
 <body>
 
-    <!-- ТЕЛЕМЕТРИЯ QYDYR -->
     <div id="telemetry">
         <div style="font-weight: bold; margin-bottom: 10px; text-align: center; color: #00ffcc;">GIDEON ANALYTICS</div>
         <div class="stat"><span>SYS LED:</span><span><span id="sys-led"></span><span id="status-val">READY</span></span></div>
@@ -62,7 +52,6 @@
         <button class="control-btn" onclick="toggleUI()">≡</button>
     </div>
 
-    <!-- КОНСТРУКТОР -->
     <div id="gideon-ui">
         <h2>КОНСТРУКТОР GIDEON</h2>
         
@@ -77,6 +66,16 @@
             <div class="btn-grid" style="margin-top:5px;">
                 <button class="m-btn action" onclick="build3DCore(false)">НОВОЕ ЯДРО</button>
                 <button class="m-btn action" style="background:#440066;" onclick="build3DCore(true)">+ СЛОЙ</button>
+            </div>
+        </div>
+
+        <!-- ВОЗВРАЩЕННЫЙ БЛОК КОЛЕЦ -->
+        <div class="cat-group">
+            <div class="cat-header">💍 КОЛЬЦЕВЫЕ УЗЛЫ</div>
+            <input type="number" id="manual-l-depth" value="3" title="Глубина вложенности L">
+            <div class="btn-grid" style="margin-top:5px;">
+                <button class="m-btn" onclick="buildManualRing('ring3', 3)">RING x3</button>
+                <button class="m-btn" onclick="buildManualRing('ring4', 4)">RING x4</button>
             </div>
         </div>
 
@@ -109,19 +108,13 @@
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000000);
             camera.position.set(2000, 2000, 2000);
-
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
-
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             currentGroup = new THREE.Group();
             scene.add(currentGroup);
-
-            loadProtectedCore().then(() => {
-                build3DCore(false);
-                animate(0);
-            });
+            loadProtectedCore().then(() => { build3DCore(false); animate(0); });
         }
 
         async function loadProtectedCore() {
@@ -138,10 +131,7 @@
                 baseDataArray = new Float32Array(combined);
                 document.getElementById('sys-led').style.background = '#00ffcc';
                 document.getElementById('status-val').innerText = 'ACTIVE';
-            } catch (e) { 
-                console.error("Ошибка загрузки моделей:", e); 
-                document.getElementById('status-val').innerText = 'LOCAL MODE';
-            }
+            } catch (e) { document.getElementById('status-val').innerText = 'LOCAL MODE'; }
         }
 
         function createPoints(data, scale = 1, colorIdx = 0) {
@@ -164,13 +154,41 @@
                 const p2 = createPoints(baseDataArray, 1, addLayer ? 1 : 0);
                 p2.rotation.set(Math.PI, 0, Math.PI);
                 petal.add(p1); petal.add(p2);
-                if (axis === 'x') petal.rotation.x = i * angleStep;
-                else if (axis === 'y') petal.rotation.y = i * angleStep;
-                else if (axis === 'z') petal.rotation.z = i * angleStep;
+                petal.rotation[axis] = i * angleStep;
                 currentGroup.add(petal);
             }
             totalPtsOnScreen += (baseDataArray.length/3)*2*count;
             updateStats();
+        }
+
+        // ФУНКЦИЯ ДЛЯ КОЛЬЦЕВЫХ УЗЛОВ (RING 3/4)
+        async function buildManualRing(folder, count) {
+            resetAll();
+            const L = parseInt(document.getElementById('manual-l-depth').value);
+            let pts = 0;
+            for (let i = 1; i <= count; i++) {
+                const m = await fetchPoints(`models/static/rings/${folder}/${i}/part1.npy`);
+                if (m) { currentGroup.add(createPoints(m, 1.2, 0)); pts += m.length/3; }
+                if (L >= 2) {
+                    const s1 = await fetchPoints(`models/static/rings/${folder}/${i}/sub1/part1.npy`);
+                    if (s1) { currentGroup.add(createPoints(s1, 0.8, 1)); pts += s1.length/3; }
+                }
+                if (L >= 3) {
+                    const s2 = await fetchPoints(`models/static/rings/${folder}/${i}/sub2/part1.npy`);
+                    if (s2) { currentGroup.add(createPoints(s2, 0.6, 2)); pts += s2.length/3; }
+                }
+            }
+            totalPtsOnScreen = pts;
+            updateStats();
+        }
+
+        async function fetchPoints(path) {
+            try {
+                const res = await fetch(path);
+                if (!res.ok) return null;
+                const buffer = await res.arrayBuffer();
+                return new Float32Array(buffer.slice(128));
+            } catch (e) { return null; }
         }
 
         async function buildFractalChain() {
@@ -205,50 +223,12 @@
             return pts;
         }
 
-        function resetAll() { 
-            scene.remove(currentGroup); 
-            currentGroup = new THREE.Group(); 
-            scene.add(currentGroup); 
-            totalPtsOnScreen = 0; 
-            updateStats();
-        }
-
-        function updateStats() {
-            document.getElementById('count').innerText = Math.round(totalPtsOnScreen).toLocaleString();
-            setTimeout(centerView, 100);
-        }
-
-        function animate(time) {
-            requestAnimationFrame(animate); 
-            frameCount++;
-            if (time >= lastTime + 1000) { 
-                document.getElementById('fps').innerText = frameCount; 
-                frameCount = 0; 
-                lastTime = time; 
-            }
-            controls.update(); 
-            renderer.render(scene, camera);
-        }
-
-        function centerView() {
-            const box = new THREE.Box3().setFromObject(currentGroup);
-            const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
-            camera.position.set(center.x, center.y, center.z + Math.max(size.x, size.y, size.z)*1.8);
-            controls.target.copy(center);
-        }
-
-        function toggleUI() {
-            const ui = document.getElementById('gideon-ui');
-            ui.style.display = ui.style.display === 'none' ? 'block' : 'none';
-        }
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight; 
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
+        function resetAll() { scene.remove(currentGroup); currentGroup = new THREE.Group(); scene.add(currentGroup); totalPtsOnScreen = 0; updateStats(); }
+        function updateStats() { document.getElementById('count').innerText = Math.round(totalPtsOnScreen).toLocaleString(); setTimeout(centerView, 100); }
+        function animate(time) { requestAnimationFrame(animate); frameCount++; if (time >= lastTime + 1000) { document.getElementById('fps').innerText = frameCount; frameCount = 0; lastTime = time; } controls.update(); renderer.render(scene, camera); }
+        function centerView() { const box = new THREE.Box3().setFromObject(currentGroup); const center = box.getCenter(new THREE.Vector3()); const size = box.getSize(new THREE.Vector3()); camera.position.set(center.x, center.y, center.z + Math.max(size.x, size.y, size.z)*1.8); controls.target.copy(center); }
+        function toggleUI() { const ui = document.getElementById('gideon-ui'); ui.style.display = ui.style.display === 'none' ? 'block' : 'none'; }
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
         init();
     </script>
 </body>
